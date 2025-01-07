@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+    PENDING
+    PAYMENT_PROCESSING
+    PAID
+    SHIPPING
+    DELIVERED
+    CANCELLED
+}
+
+enum ShipmentMethod {
+    POCHTA
+    CDEK
+    SELFPICKUP
+}
+
+model Order {
+    id        String      @id @default(cuid())
+    status    OrderStatus @default(PENDING)
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+
+    // Customer information
+    customerName  String
+    customerEmail String
+    customerPhone String
+
+    // Shipping information
+    shipmentMethod ShipmentMethod
+    city           String
+    pickupOffice   String?
+
+    // Payment information
+    paymentId String? @unique
+    amount    Int
+    quantity  Int
+
+    // CDEK specific
+    cdekOrderId        String? @unique
+    cdekTrackingNumber String?
+
+    @@index([status])
+    @@index([customerEmail])
+}
