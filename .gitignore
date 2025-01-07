@@ -6,7 +6,7 @@
 # /public/seq
 # /public/seqq
 # /public/seqm
-# /public/assets
+/public/assets
 .pnp.js
 .yarn/install-state.gz
 
