@@ -3,10 +3,10 @@
 # dependencies
 /node_modules
 /.pnp
-/public/seq
-/public/seqq
-/public/seqm
-/public/assets
+# /public/seq
+# /public/seqq
+# /public/seqm
+# /public/assets
 .pnp.js
 .yarn/install-state.gz
 
