@@ -13,32 +13,46 @@ import photo from "../../../public/home_page_girl.png"
 import dynamic from "next/dynamic"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowDownRight } from "lucide-react"
-// const ModelViewer = dynamic(() => import("@/components/3d-model"), {
-//   ssr: false,
-// })
+import ProductForm from "@/components/product-form"
+
 const ModelViewer = dynamic(() => import("@/components/visual/3d/model"), {
   ssr: false,
 })
-// Dynamically import App with SSR disabled
-const App = dynamic(() => import("@/components/test"), { ssr: false })
 
-// Dynamically import ProductForm with SSR disabled if necessary
-const ProductForm = dynamic(() => import("@/components/product-form"), {
+const App = dynamic(() => import("@/components/test"), {
   ssr: false,
 })
+
+// Dynamically import ProductForm with SSR disabled if necessary
 
 function DetailsPage() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isSecondFormInView, setIsSecondFormInView] = useState(false)
+  const [windowWidth, setWindowWidth] = useState(0)
   const secondFormRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 30)
-    }
+    // Проверяем наличие window только на клиенте
+    if (typeof window !== "undefined") {
+      // Инициализируем начальную ширину
+      setWindowWidth(window.innerWidth)
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+      const handleScroll = () => {
+        setIsScrolled(window.scrollY > 30)
+      }
+
+      const handleResize = () => {
+        setWindowWidth(window.innerWidth)
+      }
+
+      window.addEventListener("scroll", handleScroll)
+      window.addEventListener("resize", handleResize)
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll)
+        window.removeEventListener("resize", handleResize)
+      }
+    }
   }, [])
 
   useEffect(() => {
@@ -66,29 +80,13 @@ function DetailsPage() {
     }
   }, [])
 
+  // Адаптивное значение для bottom в зависимости от ширины экрана
+  const adaptiveBottom =
+    windowWidth > 768 ? (isScrolled ? 80 : 250) : isScrolled ? -5 : -5
   return (
-    <div className="pt-[26px] pb-[100px] bg-[#0d0d0d]">
-      <Container className="flex flex-col items-center justify-center">
-        <div className="aspect-[4/3] max-w-[910px] max-h-[661px] bg-background-100 rounded-[60px] w-full h-full">
-          <ModelViewer key={2} />
-        </div>
-
+    <div className="pb-[100px] bg-[#0d0d0d] -mt-[85px]">
+      <div className="flex flex-col items-center justify-center">
         <div className="flex flex-col relative mx-auto justify-center items-center gap-y-[30px] -mt-[85px]">
-          <div className="xl:block hidden">
-            <VisualElementHeading />
-          </div>
-          <div className="xl:hidden block">
-            <VisualElementHeadingSm />
-          </div>
-          <div className="w-full justify-between flex xl:pt-[40px]">
-            <span className="text-white/40 text-[14px] xl:text-2xl text-nowrap">
-              MATTHEW MASLOV
-            </span>
-
-            <span className="text-white/40 text-[14px] xl:text-2xl text-nowrap">
-              DOWN JACKET
-            </span>
-          </div>
           <AnimatePresence>
             {!isSecondFormInView && (
               <motion.div
@@ -99,7 +97,7 @@ function DetailsPage() {
                   }
                 )}
                 initial={{ bottom: -30 }}
-                animate={{ bottom: isScrolled ? 80 : 250 }}
+                animate={{ opacity: 1, y: -15, bottom: adaptiveBottom }}
                 transition={{
                   duration: 0.25,
                   type: "spring",
@@ -120,7 +118,7 @@ function DetailsPage() {
             )}
           </AnimatePresence>
         </div>
-      </Container>
+      </div>
       <App />
       <Container className="flex py-[250px] flex-col items-center justify-center bg-[#0d0d0d] z-[999]">
         <div className="aspect-[4/3] max-w-[910px] max-h-[661px] bg-background-100 rounded-[60px] w-full h-full">
@@ -128,14 +126,23 @@ function DetailsPage() {
         </div>
         <div
           ref={secondFormRef}
-          className="flex flex-col relative mx-auto justify-center items-center gap-y-[30px] -mt-[85px]"
+          className="flex flex-col relative mx-auto justify-center items-center lg:gap-y-[30px] md:gap-y-[15px] gap-y-[10px] -mt-[85px] w-full"
         >
-          <VisualElementHeading />
-          <div className="w-full justify-between flex pt-[40px]">
-            <span className="text-white/40 text-2xl">MATTHEW MASLOV</span>
-            <span className="text-white/40 text-2xl">DOWN JACKET</span>
+          <div className="hidden lg:block">
+            <VisualElementHeading />
           </div>
-          <div className="absolute translate-x-50% -bottom-[40px]">
+          <div className="inherit lg:hidden">
+            <VisualElementHeadingSm className="" />
+          </div>
+          <div className="w-full justify-between flex lg:pt-[40px] pt-[5px] gap-6">
+            <span className="text-white/40 lg:text-2xl md:text-xl sm:text-lg text-md">
+              MATTHEW MASLOV
+            </span>
+            <span className="text-white/40 lg:text-2xl md:text-xl sm:text-lg text-md">
+              DOWN JACKET
+            </span>
+          </div>
+          <div className="absolute translate-x-50% lg:-bottom-[40px] -bottom-[120px] z-50 ">
             <ProductForm />
           </div>
         </div>

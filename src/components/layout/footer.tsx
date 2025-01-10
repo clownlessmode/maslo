@@ -73,13 +73,14 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="flex-col gap-y-2.5 items-end lg:flex hidden">
-          <span className="text-lg uppercase">
+        <div className="flex-col gap-y-8 items-end justify-between h-full lg:flex hidden">
+          <span className="text-lg uppercase text-nowrap">
             WEBSITE BY{" "}
             <Link href={getData.madeBy.link}>{getData.madeBy.title}</Link>
           </span>
-          <span className="text-lg text-end uppercase text-white/20">
-            *деятельность организации запрещена на территории РФ
+          <span className="text-sm text-end uppercase text-white/10 text-nowrap">
+            *деятельность организации <br />
+            запрещена на территории РФ
           </span>
         </div>
       </div>

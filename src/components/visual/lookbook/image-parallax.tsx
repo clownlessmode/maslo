@@ -1,175 +1,184 @@
 import Container from "@/components/layout/container"
-import { motion } from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const ImageParallax = () => {
-  const [scrollY, setScrollY] = useState(0)
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start", "end"],
+  })
 
-  const handleScroll = () => {
-    setScrollY(window.scrollY)
-  }
+  const firstTextOpacity = useTransform(
+    scrollYProgress,
+    [0.15, 0.25, 0.4, 0.5],
+    [0, 1, 1, 0]
+  )
 
-  // Прокрутка
+  const secondTextOpacity = useTransform(
+    scrollYProgress,
+    [0.5, 0.6, 0.9, 1],
+    [0, 1, 1, 0]
+  )
+
+  const y1 = useTransform(scrollYProgress, [0.0, 0.95], ["100vh", "-100vh"])
+  const y2 = useTransform(scrollYProgress, [0.23, 0.98], ["100vh", "-100vh"])
+  const y3 = useTransform(scrollYProgress, [0.31, 1.3], ["100vh", "-100vh"])
+  const y4 = useTransform(scrollYProgress, [0.575, 1.35], ["100vh", "-100vh"])
+  const y5 = useTransform(scrollYProgress, [0.48, 1.6], ["100vh", "-100vh"])
+
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1440
+  )
+
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll)
-    return () => {
-      window.removeEventListener("scroll", handleScroll)
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth)
     }
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // Функция для расчета движения с учетом z-index
-  const calculateTransform = (zIndex: number) => {
-    // Чем больше z-index, тем быстрее движение
-    const speed = zIndex * 0.3 + 0.1
-    return scrollY * speed
+  // Определяем базовые размеры и отступы для всех изображений
+  const images = {
+    img1: {
+      src: "/lookbook/parallax/1.jpg",
+      width: 600,
+      height: 765,
+      position: { left: 40 },
+      zIndex: 2,
+    },
+    img2: {
+      src: "/lookbook/parallax/4.jpg",
+      width: 910,
+      height: 848,
+      position: { right: 40 },
+      zIndex: 0,
+    },
+    img3: {
+      src: "/lookbook/parallax/7.jpg",
+      width: 460,
+      height: 585,
+      position: { left: 363 },
+      zIndex: 1,
+    },
+    img4: {
+      src: "/lookbook/parallax/6.jpg",
+      width: 460,
+      height: 585,
+      position: { left: 40 },
+      zIndex: 3,
+    },
+    img5: {
+      src: "/lookbook/parallax/3.jpg",
+      width: 452,
+      height: 577,
+      position: { right: 137 },
+      zIndex: 2,
+    },
+  }
+
+  const getResponsiveSize = (originalWidth, originalHeight) => {
+    const baseScreenWidth = 1440
+    let scale = Math.min(1, Math.max(0.5, windowWidth / baseScreenWidth))
+
+    const width = Math.round(originalWidth * scale)
+    const height = Math.round(originalHeight * scale)
+
+    return { width, height }
+  }
+
+  const getResponsivePosition = (position) => {
+    const baseScreenWidth = 1440
+    let scale = Math.min(1, Math.max(0.5, windowWidth / baseScreenWidth))
+
+    if (position.left) {
+      return { left: `${Math.round(position.left * scale)}px` }
+    }
+    if (position.right) {
+      return { right: `${Math.round(position.right * scale)}px` }
+    }
+    return {}
   }
 
   return (
-    <Container className="pt-20 relative w-full h-[110vh]">
-      <div className="relative">
+    <Container
+      className="-mt-[70vh] relative w-full h-[600vh]"
+      ref={containerRef}
+    >
+      <div className="fixed z-10 top-0 left-0 w-full h-screen flex items-center justify-center">
         <motion.div
-          className="flex flex-col gap-5 items-start justify-start absolute left-0 top-0 z-[2]"
-          id="1"
-          animate={{
-            y: -calculateTransform(2),
-          }}
-          transition={{ type: "tween", duration: 0 }}
+          style={{ opacity: firstTextOpacity }}
+          className="absolute w-full"
         >
-          <Image
-            alt="image"
-            src={"/lookbook/parallax/1.jpg"}
-            className="rounded-[20px] w-[600px] h-[765px] object-cover"
-            width={600}
-            height={765}
-            quality={100}
-          />
-          <h1 className="text-[60px] tracking-[-0.04em] uppercase leading-[66px] text-center">
-            Зачем быть обычным?
-          </h1>
+          <div className="flex flex-col items-center justify-center relative z-10">
+            <div className="overflow-clip z-[5]">
+              <h1 className="xl:text-[60px] xl:leading-[66px] lg:text-[46px] lg:leading-[54px] md:text-[42px] md:leading-[50px] sm:text-[34px] sm:leading-[42px] text-[30px] leading-[36px] tracking-[-0.04em] uppercase text-center z-[5]">
+                Зачем быть
+              </h1>
+            </div>
+            <div className="overflow-clip z-[5]">
+              <h1 className="xl:text-[120px] xl:leading-[120px] lg:text-[46px] lg:leading-[54px] md:text-[42px] md:leading-[50px] sm:text-[34px] sm:leading-[42px] text-[30px] leading-[36px] tracking-[-0.04em] uppercase text-center z-[5]">
+                Обычным
+              </h1>
+            </div>
+          </div>
         </motion.div>
 
         <motion.div
-          id="2"
-          className="rounded-[20px] w-[290px] h-[369px] object-cover  absolute left-[620px] z-[3]"
-          //   top-[650px]
-          animate={{
-            y: 650 - calculateTransform(3),
-          }}
-          transition={{ type: "tween", duration: 0 }}
+          style={{ opacity: secondTextOpacity }}
+          className="absolute w-full z-10"
         >
-          <Image
-            alt="image"
-            src={"/lookbook/parallax/2.jpg"}
-            className="rounded-[20px] w-full h-full object-cover"
-            width={290}
-            height={369}
-            quality={100}
-          />
+          <div className="flex flex-col items-center justify-center relative z-10">
+            <div className="overflow-clip z-[5]">
+              <h1 className="xl:text-[60px] xl:leading-[80px] lg:text-[46px] lg:leading-[54px] md:text-[42px] md:leading-[50px] sm:text-[34px] sm:leading-[42px] text-[30px] leading-[36px] tracking-[-0.04em] uppercase text-center z-[5]">
+                Когда можно быть
+              </h1>
+            </div>
+            <div className="overflow-clip z-[5]">
+              <h1 className="xl:text-[120px] xl:leading-[120px] lg:text-[46px] lg:leading-[54px] md:text-[42px] md:leading-[50px] sm:text-[34px] sm:leading-[42px] text-[30px] leading-[36px] tracking-[-0.04em] uppercase text-center z-[5] text-brand font-semibold">
+                Сливочно
+                <br />
+                необычным?
+              </h1>
+            </div>
+          </div>
         </motion.div>
+      </div>
 
-        <motion.div
-          id="3"
-          className="rounded-[20px] w-[426px] h-[543px] object-cover  absolute left-[930px] z-[1]"
-          //   top-[0px]
-          animate={{
-            y: -calculateTransform(1),
-          }}
-          transition={{ type: "tween", duration: 0 }}
-        >
-          <Image
-            alt="image"
-            src={"/lookbook/parallax/3.jpg"}
-            className="rounded-[20px] w-full h-full object-cover"
-            width={426}
-            height={543}
-            quality={100}
-          />
-        </motion.div>
+      <div className="fixed top-0 left-0 w-full h-screen overflow-hidden">
+        {Object.entries(images).map(([key, img], index) => {
+          const { width, height } = getResponsiveSize(img.width, img.height)
+          const position = getResponsivePosition(img.position)
+          const yMotion = [y1, y2, y3, y4, y5][index]
 
-        <motion.div
-          className="flex flex-col gap-5 items-start justify-start absolute right-[0px]  z-[4]"
-          //   top-[240px]
-          id="4"
-          animate={{
-            y: -calculateTransform(0),
-          }}
-          transition={{ type: "tween", duration: 0 }}
-        >
-          <Image
-            alt="image"
-            src={"/lookbook/parallax/4.jpg"}
-            className="rounded-[20px] w-[600px] h-[765px] object-cover"
-            width={600}
-            height={765}
-            quality={100}
-          />
-          <h1 className="text-[60px] tracking-[-0.04em] uppercase leading-[66px] text-left">
-            Когда можно быть <br />
-            <span className="text-brand">
-              сливочно
-              <br />
-              необычным?
-            </span>
-          </h1>
-        </motion.div>
-
-        <motion.div
-          id="5"
-          className="rounded-[20px] w-[600px] h-[765px] object-cover  absolute left-[0] z-[1]"
-          //   top-[1322px]
-          animate={{
-            y: 1322 - calculateTransform(3),
-          }}
-          transition={{ type: "tween", duration: 0 }}
-        >
-          <Image
-            alt="image"
-            src={"/lookbook/parallax/5.jpg"}
-            className="rounded-[20px] w-full h-full object-cover"
-            width={600}
-            height={765}
-            quality={100}
-          />
-        </motion.div>
-
-        <motion.div
-          id="6"
-          className="rounded-[20px] w-[290px] h-[369px] object-cover  absolute left-[950px] z-[3]"
-          //   top-[1024px]
-          animate={{
-            y: 1024 - calculateTransform(1),
-          }}
-          transition={{ type: "tween", duration: 0 }}
-        >
-          <Image
-            alt="image"
-            src={"/lookbook/parallax/6.jpg"}
-            className="rounded-[20px] w-full h-full object-cover"
-            width={290}
-            height={369}
-            quality={100}
-          />
-        </motion.div>
-
-        <motion.div
-          id="7"
-          className="rounded-[20px] w-[452px] h-[577px] object-cover  absolute right-[0px] z-[2]"
-          //   top-[1150px]
-          animate={{
-            y: 1400 - calculateTransform(1),
-          }}
-          transition={{ type: "tween", duration: 0 }}
-        >
-          <Image
-            alt="image"
-            src={"/lookbook/parallax/7.jpg"}
-            className="rounded-[20px] w-full h-full object-cover"
-            width={452}
-            height={577}
-            quality={100}
-          />
-        </motion.div>
+          return (
+            <motion.div
+              key={key}
+              style={{
+                y: yMotion,
+                ...position,
+                zIndex: img.zIndex,
+                position: "absolute",
+              }}
+            >
+              <Image
+                alt="image"
+                src={img.src}
+                className="rounded-[20px] object-cover"
+                width={width}
+                height={height}
+                style={{
+                  width: `${width}px`,
+                  height: `${height}px`,
+                }}
+                quality={100}
+              />
+            </motion.div>
+          )
+        })}
       </div>
     </Container>
   )

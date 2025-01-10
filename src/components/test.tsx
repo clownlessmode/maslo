@@ -3,6 +3,7 @@ import { useMemo, useRef, useEffect } from "react"
 import {
   VisualElementBefore,
   VisualElementHeading,
+  VisualElementHeadingSm,
   VisualElementTemperature,
 } from "@/components/visual/details"
 import useScrollImageSequenceFramerCanvas from "@/hooks/useScrollImageSequenceFramerCanvas"
@@ -72,6 +73,11 @@ const SpatialAudioSection = () => {
       offset: ["start", "end"],
     },
   })
+  const initialContentOpacity = useTransform(
+    progress,
+    [0, 100 / TOTAL_FRAMES],
+    [1, 0]
+  )
 
   const container1Opacity = useTransform(
     progress,
@@ -126,11 +132,30 @@ const SpatialAudioSection = () => {
     [0, 1, 0]
   )
   return (
-    <section ref={containerRef} className="h-[2000vh]">
+    <section ref={containerRef} className="h-[1800vh]">
       <div className="sticky top-0">
-        <canvas ref={canvasRef} className="absolute inset-0 pt-[84px] block" />
+        <canvas ref={canvasRef} className="absolute inset-0 block" />
+        <SequenceContainer opacity={initialContentOpacity}>
+          <Container className="absolute top-[60vh] left-0 w-full flex flex-col items-center">
+            <div className="xl:block hidden">
+              <VisualElementHeading />
+            </div>
+            <div className="xl:hidden block">
+              <VisualElementHeadingSm />
+            </div>
+            <div className="w-full justify-between flex xl:pt-[40px]">
+              <span className="text-white/40 text-[14px] xl:text-2xl text-nowrap">
+                MATTHEW MASLOV
+              </span>
+              <span className="text-white/40 text-[14px] xl:text-2xl text-nowrap">
+                DOWN JACKET
+              </span>
+            </div>
+          </Container>
+        </SequenceContainer>
+
         <SequenceContainer opacity={container1Opacity}>
-          <Container className="lg:justify-between justify-center -space-y-[93px] sm:-space-y-[140px] lg:-space-y-0 relative flex lg:flex-row flex-col mt-40 h-screen select-none pointer-events-none">
+          <Container className="lg:justify-between justify-center -space-y-[93px] sm:-space-y-[140px] lg:-space-y-0 relative flex lg:flex-row flex-col md:mt-40 h-screen select-none pointer-events-none">
             <div className="gap-y-[43px] flex flex-col">
               <p className="max-w-[269px] uppercase text-white text-[24px] sm:text-[42px] tracking-[-0.04em] sm:max-w-[487px] lg:text-4xl lg:max-w-[520px]">
                 Какой у него температурный режим - ответь, бро?
@@ -168,20 +193,26 @@ const SpatialAudioSection = () => {
                 <br /> узнаваемый шеврон бренда.
               </p>
             </div>
-            <div className="flex items-center w-[75%]">
-              <div className="rounded-full bg-white p-[11px]">
-                <div className="size-[18px] rounded-full bg-brand shadow shadow-brand" />
+            <div
+              className="flex items-center 
+    [@media(min-width:1360px)]:w-[68vw]
+        [@media(min-width:1460px)]:w-[66vw]
+    w-[66vw]
+  "
+            >
+              <div className="rounded-full bg-white md:p-[11px] p-[4px]">
+                <div className="md:size-[18px] size-[8px] rounded-full bg-brand shadow shadow-brand" />
               </div>
               <div className="relative w-full h-[1px] bg-white" />
             </div>
           </Container>
         </SequenceContainer>
         <SequenceContainer opacity={container4Opacity}>
-          <Container className="h-screen lg:pt-[200px]">
+          <Container className="pt-[150px] lg:pt-[200px]">
             <p className="lg:text-4xl lg:max-w-[870px] text-[14px] max-w-[343px] sm:text-[24px] sm:max-w-[601px] uppercase">
               А металлическая молния с гравированным логотипом? Она не только
               надежно держит всё вместе, но и добавляет стильный штрих, чтобы вы
-              выглядели круче, чем ваш будильник в поContainer утром!
+              выглядели круче, чем ваш будильник в понедельник утром!
             </p>
           </Container>
         </SequenceContainer>

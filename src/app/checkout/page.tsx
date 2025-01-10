@@ -152,13 +152,10 @@ const CheckoutPage = () => {
 
   return (
     <div className="pt-[60px] pb-[100px] min-h-screen">
-      {selectedShipment}
-      {selectedCity}
-      {cdekOffices?.map((office) => office.name)}
       <Container>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-2 space-x-5">
+            <div className="grid space-x-5">
               <div className="flex flex-col gap-y-[60px]">
                 <div className="flex flex-col gap-y-[30px]">
                   <FormField
