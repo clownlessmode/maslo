@@ -1,3 +1,5 @@
+"use client"
+
 import { motion, MotionValue, useTransform } from "framer-motion"
 import { useMemo, useRef, useEffect, useState } from "react"
 import {
@@ -14,7 +16,6 @@ import { AnimatePresence } from "framer-motion"
 const imageCache = new Map<string, HTMLImageElement>()
 
 const createImage = (src: string) => {
-  // Проверяем есть ли изображение в кеше
   if (imageCache.has(src)) {
     return imageCache.get(src)!
   }
@@ -22,19 +23,21 @@ const createImage = (src: string) => {
   const img = document.createElement("img")
   img.src = src
 
-  // Добавляем в кеш при успешной загрузке
   img.onload = () => {
     imageCache.set(src, img)
   }
 
-  // Добавляем заголовки для кеширования
   fetch(src, {
     headers: {
-      "Cache-Control": "max-age=31536000", // Кешировать на год
+      "Cache-Control": "max-age=31536000",
     },
-  }).catch(console.error) // Игнорируем ошибки, так как изображение все равно загрузится через img.src
+  }).catch(console.error)
 
   return img
+}
+
+const clearImageCache = () => {
+  imageCache.clear()
 }
 
 const handleDrawCanvas = (
@@ -111,8 +114,9 @@ const SpatialAudioSection = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   const keyframes = useMemo(() => {
-    const isMobile =
-      typeof window !== "undefined" ? window.innerWidth <= 744 : false
+    if (typeof window === "undefined") return []
+
+    const isMobile = window.innerWidth <= 744
     const folderPath = isMobile ? "seqm-webp" : "seq-webp"
     let loadedImages = 0
     const startTime = performance.now()
