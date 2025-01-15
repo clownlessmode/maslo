@@ -13,31 +13,12 @@ import Container from "@/components/layout/container"
 import { Paragraph } from "./ui/word"
 import Lenis from "lenis"
 import { AnimatePresence } from "framer-motion"
-const imageCache = new Map<string, HTMLImageElement>()
 
 const createImage = (src: string) => {
-  if (imageCache.has(src)) {
-    return imageCache.get(src)!
-  }
-
   const img = document.createElement("img")
   img.src = src
 
-  img.onload = () => {
-    imageCache.set(src, img)
-  }
-
-  fetch(src, {
-    headers: {
-      "Cache-Control": "max-age=31536000",
-    },
-  }).catch(console.error)
-
   return img
-}
-
-const clearImageCache = () => {
-  imageCache.clear()
 }
 
 const handleDrawCanvas = (
