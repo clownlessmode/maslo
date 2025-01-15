@@ -69,6 +69,9 @@ const config: Config = {
           200: "#141414",
         },
       },
+      animation: {
+        spin: "spin 1s linear infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

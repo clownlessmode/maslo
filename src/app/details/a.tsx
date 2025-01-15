@@ -14,12 +14,8 @@ import dynamic from "next/dynamic"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowDownRight } from "lucide-react"
 import ProductForm from "@/components/product-form"
-
+import App from "@/components/test"
 const ModelViewer = dynamic(() => import("@/components/visual/3d/model"), {
-  ssr: false,
-})
-
-const App = dynamic(() => import("@/components/test"), {
   ssr: false,
 })
 

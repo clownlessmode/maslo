@@ -27,6 +27,8 @@ import { getCdekOffices } from "@/lib/cdek"
 import { useQuery } from "@tanstack/react-query"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { createOrder } from "@/lib/orders"
+import { calculatePrice } from "@/lib/checkout"
+import Model from "@/components/visual/3d/model"
 
 const formSchema = z
   .object({
@@ -155,7 +157,7 @@ const CheckoutPage = () => {
       <Container>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid space-x-5">
+            <div className="grid lg:grid-cols-2 grid-cols-1 [&>*:first-child]:order-last [&>*:first-child]:lg:order-first space-x-5">
               <div className="flex flex-col gap-y-[60px]">
                 <div className="flex flex-col gap-y-[30px]">
                   <FormField
@@ -324,7 +326,8 @@ const CheckoutPage = () => {
                   Оформить заказ
                 </Button>
               </div>
-              {/* <ProductCard /> */}
+              {/* <Model key={10} /> */}
+              <ProductCard />
             </div>
           </form>
         </Form>
@@ -333,86 +336,102 @@ const CheckoutPage = () => {
   )
 }
 
-// const ProductCard = () => {
-//   const [quantity, setQuantity] = useState(1)
-//   const [total, setTotal] = useState(19000)
+const ProductCard = () => {
+  const [quantity, setQuantity] = useState(1)
+  const [total, setTotal] = useState(19000)
 
-//   const handleQuantityChange = async (increment: boolean) => {
-//     const newQuantity = increment ? quantity + 1 : quantity - 1
+  const handleQuantityChange = async (increment: boolean) => {
+    const newQuantity = increment ? quantity + 1 : quantity - 1
 
-//     if (newQuantity < 1 || newQuantity > 5) return
+    if (newQuantity < 1 || newQuantity > 5) return
 
-//     const result = await calculatePrice(newQuantity)
+    const result = await calculatePrice(newQuantity)
 
-//     if (result.success) {
-//       setQuantity(result.quantity)
-//       setTotal(result.total)
-//     }
-//   }
+    if (result.success) {
+      setQuantity(result.quantity)
+      setTotal(result.total)
+    }
+  }
 
-//   return (
-//     <div className="flex w-full mt-[44px] flex-col rounded-[20px] max-h-[885px] relative overflow-hidden">
-//       {/* ... existing code ... */}
-//       <div className="space-x-[45px] flex items-center">
-//         <div className="flex items-center space-x-3">
-//           <button
-//             onClick={() => handleQuantityChange(false)}
-//             disabled={quantity <= 1}
-//             className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
-//           >
-//             <MinusIcon />
-//           </button>
-//           <span className="text-[2rem] leading-[2.4rem]">{quantity}X</span>
-//           <button
-//             onClick={() => handleQuantityChange(true)}
-//             disabled={quantity >= 5}
-//             className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
-//           >
-//             <PlusIcon />
-//           </button>
-//         </div>
-//         <span className="text-[2rem] leading-[2.4rem]">
-//           {total.toLocaleString()}₽
-//         </span>
-//       </div>
-//       {/* ... rest of the code ... */}
-//     </div>
-//   )
-// }
+  return (
+    <div className="flex w-full h-full my-[44px] flex-col rounded-[20px] max-h-[1104px] relative overflow-hidden">
+      <div className="flex items-center justify-center bg-[#171717] h-full">
+        <Model key={10} />
+      </div>
+      <div className="h-50% p-[50px] bg-background-100 rounded-b-[20px] flex flex-col">
+        <p className="md:text-[48px] md:leading-[58px] text-[32px] leading-[38px] font-semibold flex flex-col gap-0">
+          <span className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">
+            Down Jacket
+          </span>
+          &quot;WARM AS BUTTER&quot;
+        </p>
+        <div className="flex items-center justify-between mt-[35px]">
+          <p className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">
+            SIZE: M {/* size */}
+          </p>
+          <div className="md:space-x-[45px] space-x-[20px] flex items-center">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => handleQuantityChange(false)}
+                disabled={quantity <= 1}
+                className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
+              >
+                <MinusIcon />
+              </button>
+              <span className="md:text-[2rem] md:leading-[2.4rem] text-[1.2rem] leading-[1.4rem]">
+                {quantity}X
+              </span>
+              <button
+                onClick={() => handleQuantityChange(true)}
+                disabled={quantity >= 5}
+                className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
+              >
+                <PlusIcon />
+              </button>
+            </div>
+            <span className="md:text-[2rem] md:leading-[2.4rem] text-[1.2rem] leading-[1.4rem]">
+              {total.toLocaleString()}₽
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-// // Separate SVG components for cleaner code
-// const MinusIcon = () => (
-//   <svg width="12" height="3" viewBox="0 0 12 3" fill="none">
-//     <line
-//       x1="11.6719"
-//       y1="1.40675"
-//       x2="0.265012"
-//       y2="1.40675"
-//       stroke="#141414"
-//       strokeWidth="1.7549"
-//     />
-//   </svg>
-// )
+// Separate SVG components for cleaner code
+const MinusIcon = () => (
+  <svg width="12" height="3" viewBox="0 0 12 3" fill="none">
+    <line
+      x1="11.6719"
+      y1="1.40675"
+      x2="0.265012"
+      y2="1.40675"
+      stroke="#141414"
+      strokeWidth="1.7549"
+    />
+  </svg>
+)
 
-// const PlusIcon = () => (
-//   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-//     <line
-//       x1="5.96534"
-//       y1="0.264648"
-//       x2="5.96534"
-//       y2="11.6715"
-//       stroke="#141414"
-//       strokeWidth="1.7549"
-//     />
-//     <line
-//       x1="11.6055"
-//       y1="6.03077"
-//       x2="0.198606"
-//       y2="6.03077"
-//       stroke="#141414"
-//       strokeWidth="1.7549"
-//     />
-//   </svg>
-// )
+const PlusIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+    <line
+      x1="5.96534"
+      y1="0.264648"
+      x2="5.96534"
+      y2="11.6715"
+      stroke="#141414"
+      strokeWidth="1.7549"
+    />
+    <line
+      x1="11.6055"
+      y1="6.03077"
+      x2="0.198606"
+      y2="6.03077"
+      stroke="#141414"
+      strokeWidth="1.7549"
+    />
+  </svg>
+)
 
 export default CheckoutPage

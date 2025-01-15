@@ -45,62 +45,39 @@ const ImageParallax = () => {
   const images = {
     img1: {
       src: "/lookbook/parallax/1.jpg",
-      width: 600,
-      height: 765,
-      position: { left: 40 },
+      className:
+        "w-[280px] h-[357px] sm:w-[330px]  md:w-[400px] lg:w-[400px] xl:w-[500px] 2xl:w-[600px] sm:h-[407px] md:h-[510px] lg:h-[510px] xl:h-[637px] 2xl:h-[765px]",
+      position: { left: "2.5%", sm: "5%", xl: "40px" },
       zIndex: 2,
     },
     img2: {
       src: "/lookbook/parallax/4.jpg",
-      width: 910,
-      height: 848,
-      position: { right: 40 },
+      className:
+        "w-[280px] h-[280px] sm:w-[350px] md:w-[600px] lg:w-[600px] xl:w-[750px] 2xl:w-[910px] sm:h-[330px] md:h-[559px] lg:h-[559px] xl:h-[699px] 2xl:h-[848px]",
+      position: { right: "2.5%", sm: "5%", xl: "40px" },
       zIndex: 0,
     },
     img3: {
       src: "/lookbook/parallax/7.jpg",
-      width: 460,
-      height: 585,
-      position: { left: 363 },
+      className:
+        "w-[240px] h-[305px] sm:w-[290px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[460px] sm:h-[355px] md:h-[458px] lg:h-[458px] xl:h-[509px] 2xl:h-[585px]",
+      position: { left: "20%", sm: "25%", xl: "363px" },
       zIndex: 1,
     },
     img4: {
       src: "/lookbook/parallax/6.jpg",
-      width: 460,
-      height: 585,
-      position: { left: 40 },
+      className:
+        "w-[240px] sm:w-[305px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[460px] sm:h-[355px] md:h-[458px] lg:h-[458px] xl:h-[509px] 2xl:h-[585px]",
+      position: { left: "2.5%", sm: "5%", xl: "40px" },
       zIndex: 3,
     },
     img5: {
       src: "/lookbook/parallax/3.jpg",
-      width: 452,
-      height: 577,
-      position: { right: 137 },
+      className:
+        "w-[240px] sm:w-[305px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[452px] sm:h-[355px] md:h-[458px] lg:h-[458px] xl:h-[509px] 2xl:h-[577px]",
+      position: { right: "10%", sm: "12%", xl: "137px" },
       zIndex: 2,
     },
-  }
-
-  const getResponsiveSize = (originalWidth, originalHeight) => {
-    const baseScreenWidth = 1440
-    let scale = Math.min(1, Math.max(0.5, windowWidth / baseScreenWidth))
-
-    const width = Math.round(originalWidth * scale)
-    const height = Math.round(originalHeight * scale)
-
-    return { width, height }
-  }
-
-  const getResponsivePosition = (position) => {
-    const baseScreenWidth = 1440
-    let scale = Math.min(1, Math.max(0.5, windowWidth / baseScreenWidth))
-
-    if (position.left) {
-      return { left: `${Math.round(position.left * scale)}px` }
-    }
-    if (position.right) {
-      return { right: `${Math.round(position.right * scale)}px` }
-    }
-    return {}
   }
 
   return (
@@ -150,8 +127,6 @@ const ImageParallax = () => {
 
       <div className="fixed top-0 left-0 w-full h-screen overflow-hidden">
         {Object.entries(images).map(([key, img], index) => {
-          const { width, height } = getResponsiveSize(img.width, img.height)
-          const position = getResponsivePosition(img.position)
           const yMotion = [y1, y2, y3, y4, y5][index]
 
           return (
@@ -159,21 +134,17 @@ const ImageParallax = () => {
               key={key}
               style={{
                 y: yMotion,
-                ...position,
                 zIndex: img.zIndex,
                 position: "absolute",
+                ...img.position,
               }}
             >
               <Image
                 alt="image"
                 src={img.src}
-                className="rounded-[20px] object-cover"
-                width={width}
-                height={height}
-                style={{
-                  width: `${width}px`,
-                  height: `${height}px`,
-                }}
+                className={`rounded-[20px] object-cover ${img.className}`}
+                width={1000}
+                height={1000}
                 quality={100}
               />
             </motion.div>

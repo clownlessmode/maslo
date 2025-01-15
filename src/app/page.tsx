@@ -22,7 +22,7 @@ function HomePage() {
           <div
             className="order-first lg:order-2 md:col-span-2 md:row-span-3
             items-end justify-center flex bg-background-100
-            rounded-[30px] md:rounded-[60px] xl:h-[860px] overflow-hidden h-full"
+            rounded-[30px] md:rounded-[60px] xl:h-[860px] overflow-hidden h-full min-h-[150px] min-w-[335px]"
           >
             <ModelViewer key={1} />
           </div>
@@ -43,7 +43,7 @@ function HomePage() {
             </Button>
 
             <div
-              className="rounded-[20px] h-full md:rounded-[60px] bg-background-100
+              className="rounded-[20px] md:rounded-[60px] h-full bg-background-100
               text-md md:text-lg xl:text-2xl flex items-center justify-center
               font-semibold p-4 md:h-[319px]"
             >

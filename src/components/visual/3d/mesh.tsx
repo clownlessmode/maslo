@@ -1,67 +1,71 @@
 "use client"
-import { useGLTF, useTexture } from "@react-three/drei"
+import { useGLTF } from "@react-three/drei"
 import * as THREE from "three"
 import { memo, useMemo, useRef } from "react"
 import { useFrame } from "@react-three/fiber"
+import {
+  Box3,
+  Group,
+  Material,
+  MeshStandardMaterial,
+  Mesh as MeshType,
+  Object3D,
+  Vector3,
+} from "three"
+
+interface GLTFResult {
+  nodes: { [key: string]: MeshType }
+  materials: { [key: string]: Material }
+  scene: Group
+}
 
 const MeshComponent = () => {
-  const file = "/assets/5345345345.gltf"
-  const mesh = useRef<THREE.Mesh>(null!)
+  const file = "/assets/5345345345_compressed.gltf"
+  const meshRef = useRef<MeshType>(null!)
 
-  // Предварительная загрузка
-  useGLTF.preload(file)
-
-  const { scene } = useGLTF(file, true)
+  const { scene } = useGLTF(file) as unknown as GLTFResult
 
   const processedScene = useMemo(() => {
     if (!scene) return null
 
     const clonedScene = scene.clone()
 
-    clonedScene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.geometry.dispose()
-        if (Array.isArray(child.material)) {
-          child.material.forEach((material) => material.dispose())
-        } else if (child.material) {
-          child.material.dispose()
+    clonedScene.traverse((child: Object3D) => {
+      if (child instanceof MeshType) {
+        if (child.material) {
+          if (child.material instanceof MeshStandardMaterial) {
+            child.material.fog = false
+            child.material.flatShading = false
+          }
         }
       }
     })
 
-    const box = new THREE.Box3().setFromObject(clonedScene)
-    const center = box.getCenter(new THREE.Vector3())
-    const size = box.getSize(new THREE.Vector3()).length()
+    const box = new Box3().setFromObject(clonedScene)
+    const center = box.getCenter(new Vector3())
+    const size = box.getSize(new Vector3()).length()
 
     const scale = 1 / size
-    clonedScene.scale.set(scale, scale, scale)
-    clonedScene.position.set(
-      -center.x * scale,
-      -center.y * scale,
-      -center.z * scale
-    )
-
-    clonedScene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        if (child.material instanceof THREE.Material) {
-          child.material.needsUpdate = true
-        }
-      }
-    })
+    clonedScene.scale.setScalar(scale)
+    clonedScene.position.copy(center).multiplyScalar(-scale)
 
     return clonedScene
   }, [scene])
-  useFrame(() => {
-    mesh.current.rotation.y += 0.005
+
+  // Используем useFrame для постоянного вращения
+  useFrame((state, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += delta * 0.5 // Скорость вращения можно регулировать
+    }
   })
+
   return processedScene ? (
-    <mesh ref={mesh}>
+    <mesh ref={meshRef}>
       <primitive object={processedScene} />
     </mesh>
   ) : null
 }
 
-// Set the displayName for debugging purposes
 MeshComponent.displayName = "MeshComponent"
 
 export const Mesh = memo(MeshComponent)
