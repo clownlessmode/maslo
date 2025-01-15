@@ -14,12 +14,7 @@ import dynamic from "next/dynamic"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowDownRight } from "lucide-react"
 import ProductForm from "@/components/product-form"
-
-// Динамически импортируем компонент App с отключенным SSR
-const DynamicApp = dynamic(() => import("@/components/test"), {
-  ssr: false,
-})
-
+import App from "@/components/test"
 const ModelViewer = dynamic(() => import("@/components/visual/3d/model"), {
   ssr: false,
 })
@@ -120,7 +115,7 @@ function DetailsPage() {
           </AnimatePresence>
         </div>
       </div>
-      <DynamicApp />
+      <App />
       <Container className="flex py-[250px] flex-col items-center justify-center bg-[#0d0d0d] z-[999]">
         <div className="aspect-[4/3] max-w-[910px] max-h-[661px] bg-background-100 rounded-[60px] w-full h-full">
           <ModelViewer key={3} />
