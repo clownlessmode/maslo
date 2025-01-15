@@ -97,7 +97,7 @@ const FooterSlider = () => {
             style={{
               height: firstImageHeight,
               backgroundImage: `url('/lookbook/slides/1.jpg')`,
-              backgroundPosition: "center",
+              backgroundPosition: "top center", // или просто "top"
               backgroundSize: "cover",
               zIndex: 1,
             }}
@@ -108,7 +108,8 @@ const FooterSlider = () => {
               height: secondImageHeight,
               backgroundImage: `url('/lookbook/slides/2.jpg')`,
               backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundPosition: "top center", // или просто "top"
+              transform: "translateY(30%)", // Сдвигаем изображение вниз
               zIndex: 2,
             }}
           />
