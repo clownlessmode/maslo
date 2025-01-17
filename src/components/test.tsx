@@ -13,6 +13,8 @@ import Container from "@/components/layout/container"
 import { Paragraph } from "./ui/word"
 import Lenis from "lenis"
 import { AnimatePresence } from "framer-motion"
+import { cn } from "@/lib/utils"
+import ProductForm from "@/components/product-form"
 
 const createImage = (src: string) => {
   const img = document.createElement("img")
@@ -98,7 +100,13 @@ const LoadingScreen = ({ progress }: { progress: number }) => {
   )
 }
 
-const SpatialAudioSection = () => {
+const SpatialAudioSection = ({
+  isSecondFormInView,
+  adaptiveBottom,
+}: {
+  isSecondFormInView: boolean
+  adaptiveBottom: number
+}) => {
   const TOTAL_FRAMES = 1501
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -166,6 +174,20 @@ const SpatialAudioSection = () => {
     [1, 0]
   )
 
+  const [opacityValue, setOpacityValue] = useState(initialContentOpacity.get())
+
+  useEffect(() => {
+    const unsubscribe = initialContentOpacity.onChange((value) => {
+      setOpacityValue(value)
+    })
+
+    return () => unsubscribe()
+  }, [initialContentOpacity])
+
+  useEffect(() => {
+    console.log("progress изменился на:", progress)
+  }, [progress])
+
   const container1Opacity = useTransform(
     progress,
     [188 / TOTAL_FRAMES, 250 / TOTAL_FRAMES, 362 / TOTAL_FRAMES],
@@ -231,30 +253,73 @@ const SpatialAudioSection = () => {
               <div className="xl:block hidden">
                 <VisualElementHeading />
               </div>
-              <div className="xl:hidden block">
+              <div className="xl:hidden flex flex-col gap-5">
                 <VisualElementHeadingSm />
-              </div>
-              <div className="w-full justify-between flex xl:pt-[40px]">
-                <span className="text-white/40 text-[14px] xl:text-2xl text-nowrap">
-                  MATTHEW MASLOV
-                </span>
-                <span className="text-white/40 text-[14px] xl:text-2xl text-nowrap">
-                  DOWN JACKET
-                </span>
+                <div className="flex justify-between w-full">
+                  <motion.span
+                    style={{ opacity: initialContentOpacity }}
+                    className="text-white/40 text-[14px] xl:text-2xl text-nowrap"
+                  >
+                    MATTHEW MASLOV
+                  </motion.span>
+                  <motion.span
+                    style={{ opacity: initialContentOpacity }}
+                    className="text-white/40 text-[14px] xl:text-2xl text-nowrap"
+                  >
+                    DOWN JACKET
+                  </motion.span>
+                </div>
               </div>
             </Container>
           </SequenceContainer>
-
+          <motion.div
+            className="w-full px-5 sm:px-10 justify-center items-center max-w-full left-1/2 -translate-x-1/2  xl:pt-[40px] fixed xl:hidden flex"
+            initial={{ top: "70vh" }}
+            animate={{
+              top: initialContentOpacity.get() === 0 ? "90vh" : "75vh",
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="w-fit">
+              <ProductForm />
+              {/* {opacityValue} */}
+            </div>
+          </motion.div>
+          <motion.div
+            className="w-full px-5 sm:px-10 justify-between items-center xl:max-w-[1440px] left-1/2 -translate-x-1/2  xl:pt-[40px] fixed xl:flex hidden"
+            initial={{ top: "70vh" }}
+            animate={{
+              top: initialContentOpacity.get() === 0 ? "85vh" : "70vh",
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.span
+              style={{ opacity: initialContentOpacity }}
+              className="text-white/40 text-[14px] xl:text-2xl text-nowrap"
+            >
+              MATTHEW MASLOV
+            </motion.span>
+            <div className="w-fit">
+              <ProductForm />
+              {/* {opacityValue} */}
+            </div>
+            <motion.span
+              style={{ opacity: initialContentOpacity }}
+              className="text-white/40 text-[14px] xl:text-2xl text-nowrap"
+            >
+              DOWN JACKET
+            </motion.span>
+          </motion.div>
           <SequenceContainer opacity={container1Opacity}>
             <Container className="lg:justify-between justify-center -space-y-[93px] sm:-space-y-[140px] lg:-space-y-0 relative flex lg:flex-row flex-col md:mt-40 h-screen select-none pointer-events-none">
               <div className="gap-y-[43px] flex flex-col">
-                <p className="max-w-[269px] uppercase text-white text-[24px] sm:text-[42px] tracking-[-0.04em] sm:max-w-[487px] lg:text-4xl lg:max-w-[520px]">
+                <p className="2xl:leading-[36px] xl:leading-[36px] lg:leading-[36px] md:leading-[42px] sm:leading-[42px] leading-[26px] max-w-[269px] uppercase text-white text-[24px] sm:text-[42px] tracking-[-0.04em] sm:max-w-[487px] lg:text-4xl lg:max-w-[520px]">
                   Какой у него температурный режим - ответь, бро?
                 </p>
                 <VisualElementBefore className="max-w-[100px] sm:max-w-[158px] lg:max-w-none" />
               </div>
               <div className="gap-y-8 sm:gap-y-10 lg:gap-y-[37px] items-end flex flex-col z-[5]">
-                <p className="text-[24px] order-2 lg:order-1 sm:text-[42px] lg:text-4xl text-end uppercase">
+                <p className="2xl:leading-[36px] min-h-[108px] xl:leading-[36px] lg:leading-[36px] md:leading-[42px] sm:leading-[42px] leading-[26px] text-[24px] order-2 lg:order-1 sm:text-[42px] lg:text-4xl text-end uppercase">
                   Ведь он не любит холод,
                   <br /> <span className="font-semibold">ему лишь бы</span>
                 </p>
@@ -263,7 +328,7 @@ const SpatialAudioSection = () => {
             </Container>
           </SequenceContainer>
           <SequenceContainer opacity={container2Opacity}>
-            <Container className="flex flex-col gap-y-5 sm:gap-y-[30px] items-center lg:items-start lg:gap-y-[43px] justify-center h-screen ">
+            <Container className="flex flex-col gap-y-5 sm:gap-y-[30px] items-center lg:items-start lg:gap-y-[43px] justify-center h-screen bg-[black]/50 lg:bg-[black]/0">
               <span className="text-[36px] lg:text-[149px] sm:text-[60px] sm:leading-[60px] text-center lg:text-start font-semibold leading-[36px] lg:leading-[149px] tracking-[-0.04em]">
                 <span className="text-brand">PEACH</span> <br />
                 ЭФФЕКТ
@@ -274,8 +339,8 @@ const SpatialAudioSection = () => {
             </Container>
           </SequenceContainer>
           <SequenceContainer opacity={container3Opacity}>
-            <Container className="flex flex-col relative h-screen w-full justify-center items-end gap-y-2.5 lg:gap-y-[26px]">
-              <div className="flex flex-col gap-y-2.5 lg:gap-y-[26px] sm:gap-y-5">
+            <Container className="flex flex-col relative h-screen w-full justify-center items-end gap-y-2.5 lg:gap-y-[26px] ">
+              <div className="flex flex-col gap-y-2.5 lg:gap-y-[26px] sm:gap-y-5 lg:pr-[48px]">
                 <span className="text-[36px] leading-[36px] sm:text-[60px] sm:leading-[60px] lg:text-[149px] font-semibold text-brand lg:leading-[149px] tracking-[-0.04em]">
                   BUTTER
                 </span>
@@ -308,7 +373,7 @@ const SpatialAudioSection = () => {
             </Container>
           </SequenceContainer>
           <SequenceContainer opacity={container5Opacity}>
-            <Container className="h-screen flex justify-center items-end pr-[36px] flex-col">
+            <Container className="h-screen pt-[180px] sm:pt-0 flex justify-center items-end pr-[36px] flex-col bg-[black]/50">
               <div className="flex flex-col gap-y-5 sm:gap-y-[30px] lg:gap-y-[37px]">
                 <span className="text-[36px] leading-[36px] sm:text-[60px] sm:leading-[60px] lg:text-[149px] font-semibold text-brand lg:leading-[149px] tracking-[-0.04em]">
                   A CREAMY <br /> SURPRISE
@@ -326,10 +391,19 @@ const SpatialAudioSection = () => {
   )
 }
 
-const App = () => (
+const App = ({
+  isSecondFormInView,
+  adaptiveBottom,
+}: {
+  isSecondFormInView: boolean
+  adaptiveBottom: number
+}) => (
   <main>
     <div className="overflow-clip">
-      <SpatialAudioSection />
+      <SpatialAudioSection
+        isSecondFormInView={isSecondFormInView}
+        adaptiveBottom={adaptiveBottom}
+      />
     </div>
   </main>
 )

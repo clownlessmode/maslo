@@ -80,42 +80,11 @@ function DetailsPage() {
   const adaptiveBottom =
     windowWidth > 768 ? (isScrolled ? 80 : 250) : isScrolled ? -5 : -5
   return (
-    <div className="pb-[100px] bg-[#0d0d0d] -mt-[85px]">
-      <div className="flex flex-col items-center justify-center">
-        <div className="flex flex-col relative mx-auto justify-center items-center gap-y-[30px] -mt-[85px]">
-          <AnimatePresence>
-            {!isSecondFormInView && (
-              <motion.div
-                className={cn(
-                  "justify-center flex fixed z-[100] flex-col items-center gap-[30px]",
-                  {
-                    hidden: isSecondFormInView,
-                  }
-                )}
-                initial={{ bottom: -30 }}
-                animate={{ opacity: 1, y: -15, bottom: adaptiveBottom }}
-                transition={{
-                  duration: 0.25,
-                  type: "spring",
-                  stiffness: 100,
-                  damping: 15,
-                  mass: 1,
-                  bounce: 0.25,
-                  ease: [0.77, 0, 0.175, 1],
-                }}
-              >
-                <ProductForm />
-                {/* {!isScrolled && (
-                  <span className="text-white/40 text-[14px] xl:text-2xl flex items-center flex-row">
-                    MORE <ArrowDownRight />
-                  </span>
-                )} */}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-      <App />
+    <div className=" bg-[#0d0d0d] -mt-[85px]">
+      <App
+        adaptiveBottom={adaptiveBottom}
+        isSecondFormInView={isSecondFormInView}
+      />
       <Container className="flex py-[250px] flex-col items-center justify-center bg-[#0d0d0d] z-[999]">
         <div className="aspect-[4/3] max-w-[910px] max-h-[661px] bg-background-100 rounded-[60px] w-full h-full">
           <ModelViewer key={3} />
@@ -143,7 +112,7 @@ function DetailsPage() {
           </div>
         </div>
       </Container>
-      <Container className="grid xl:grid-cols-4 gap-5">
+      <Container className="grid xl:grid-cols-4 gap-5 z-[999] bg-[#0d0d0d] pb-[100px]">
         <ImageCard
           src={"bg-[url('/details/1.png')]"}
           size="lg"

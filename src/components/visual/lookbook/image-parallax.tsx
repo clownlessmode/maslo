@@ -90,6 +90,11 @@ const ImageParallax = () => {
           style={{ opacity: firstTextOpacity }}
           className="absolute w-full"
         >
+          <div className="absolute inset-0 flex items-center justify-center ">
+            <svg width="60vw" height="300" className="opacity-50 blur-3xl">
+              <ellipse cx="30vw" cy="150" rx="30vw" ry="150" fill="black" />
+            </svg>
+          </div>
           <div className="flex flex-col items-center justify-center relative z-10">
             <div className="overflow-clip z-[5]">
               <h1 className="xl:text-[60px] xl:leading-[66px] lg:text-[46px] lg:leading-[54px] md:text-[42px] md:leading-[50px] sm:text-[34px] sm:leading-[42px] text-[30px] leading-[36px] tracking-[-0.04em] uppercase text-center z-[5]">
@@ -109,6 +114,11 @@ const ImageParallax = () => {
           className="absolute w-full z-10"
         >
           <div className="flex flex-col items-center justify-center relative z-10">
+            <div className="absolute inset-0 flex items-center justify-center ">
+              <svg width="60vw" height="300" className="opacity-50 blur-3xl">
+                <ellipse cx="30vw" cy="150" rx="30vw" ry="150" fill="black" />
+              </svg>
+            </div>
             <div className="overflow-clip z-[5]">
               <h1 className="xl:text-[60px] xl:leading-[80px] lg:text-[46px] lg:leading-[54px] md:text-[42px] md:leading-[50px] sm:text-[34px] sm:leading-[42px] text-[30px] leading-[36px] tracking-[-0.04em] uppercase text-center z-[5]">
                 Когда можно быть
