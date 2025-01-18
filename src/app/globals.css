@@ -5,3 +5,9 @@
 img {
   @apply select-none pointer-events-none;
 }
+
+html,
+body,
+:root {
+  height: 100%;
+}

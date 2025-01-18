@@ -407,7 +407,7 @@ const MinusIcon = () => (
       y1="1.40675"
       x2="0.265012"
       y2="1.40675"
-      stroke="#141414"
+      stroke="#0F0F0F"
       strokeWidth="1.7549"
     />
   </svg>
@@ -420,7 +420,7 @@ const PlusIcon = () => (
       y1="0.264648"
       x2="5.96534"
       y2="11.6715"
-      stroke="#141414"
+      stroke="#0F0F0F"
       strokeWidth="1.7549"
     />
     <line
@@ -428,7 +428,7 @@ const PlusIcon = () => (
       y1="6.03077"
       x2="0.198606"
       y2="6.03077"
-      stroke="#141414"
+      stroke="#0F0F0F"
       strokeWidth="1.7549"
     />
   </svg>

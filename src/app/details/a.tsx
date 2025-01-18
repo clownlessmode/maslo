@@ -2,24 +2,18 @@
 "use client"
 
 import Container from "@/components/layout/container"
-import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import {
   VisualElementHeading,
   VisualElementHeadingSm,
 } from "@/components/visual/details"
 import { cn } from "@/utils"
-import photo from "../../../public/home_page_girl.png"
 import dynamic from "next/dynamic"
-import { AnimatePresence, motion } from "framer-motion"
-import { ArrowDownRight } from "lucide-react"
 import ProductForm from "@/components/product-form"
-import App from "@/components/test"
+import BigAnimation from "@/components/big-animation/BigAnimation"
 const ModelViewer = dynamic(() => import("@/components/visual/3d/model"), {
   ssr: false,
 })
-
-// Dynamically import ProductForm with SSR disabled if necessary
 
 function DetailsPage() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -81,7 +75,7 @@ function DetailsPage() {
     windowWidth > 768 ? (isScrolled ? 80 : 250) : isScrolled ? -5 : -5
   return (
     <div className=" bg-[#0d0d0d] -mt-[85px]">
-      <App
+      <BigAnimation
         adaptiveBottom={adaptiveBottom}
         isSecondFormInView={isSecondFormInView}
       />
@@ -99,7 +93,7 @@ function DetailsPage() {
           <div className="inherit lg:hidden">
             <VisualElementHeadingSm className="" />
           </div>
-          <div className="w-full justify-between flex lg:pt-[40px] pt-[5px] gap-6">
+          <div className="w-full justify-between flex lg:pt-[40px] pt-[5px] gap-6 max-w-[1474px]">
             <span className="text-white/40 lg:text-2xl md:text-xl sm:text-lg text-md">
               MATTHEW MASLOV
             </span>

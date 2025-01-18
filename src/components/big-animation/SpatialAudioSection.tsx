@@ -10,95 +10,12 @@ import {
 } from "@/components/visual/details"
 import useScrollImageSequenceFramerCanvas from "@/hooks/useScrollImageSequenceFramerCanvas"
 import Container from "@/components/layout/container"
-import { Paragraph } from "./ui/word"
-import Lenis from "lenis"
 import { AnimatePresence } from "framer-motion"
-import { cn } from "@/lib/utils"
 import ProductForm from "@/components/product-form"
-
-const createImage = (src: string) => {
-  const img = document.createElement("img")
-  img.src = src
-
-  return img
-}
-
-const handleDrawCanvas = (
-  img: HTMLImageElement,
-  ctx: CanvasRenderingContext2D
-) => {
-  if (!img.complete || img.naturalWidth === 0) {
-    return
-  }
-
-  const canvas = ctx.canvas
-  const widthRatio = canvas.width / img.width
-  const heightRatio = canvas.height / img.height
-  const ratio = Math.max(widthRatio, heightRatio)
-  const centerX = (canvas.width - img.width * ratio) / 2
-  const centerY = (canvas.height - img.height * ratio) / 2
-
-  try {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.drawImage(
-      img,
-      0,
-      0,
-      img.width,
-      img.height,
-      centerX,
-      centerY,
-      img.width * ratio,
-      img.height * ratio
-    )
-  } catch (error) {
-    console.error("Ошибка при отрисовке изображения:", error)
-  }
-}
-
-interface FrameConfig {
-  startFrame: number
-  visibleFrame: number
-  endFrame: number
-}
-
-const LoadingScreen = ({ progress }: { progress: number }) => {
-  return (
-    <motion.div
-      className="fixed inset-0 bg-[#0d0d0d] z-[99999] flex items-center justify-center"
-      initial={{ y: 0 }}
-      exit={{
-        y: "-100%",
-        transition: {
-          duration: 0.8,
-          ease: [0.76, 0, 0.24, 1],
-        },
-      }}
-    >
-      <div className="text-center">
-        <div className="inline-block relative w-20 h-20 mb-4">
-          <div className="absolute border-4 border-white/20 rounded-full w-full h-full" />
-          <div
-            className="absolute border-4 border-brand rounded-full w-full h-full animate-spin"
-            style={{
-              clipPath: `polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 ${progress}%)`,
-            }}
-          />
-        </div>
-        <motion.p
-          className="text-white text-xl"
-          initial={{ opacity: 1 }}
-          exit={{
-            opacity: 0,
-            transition: { duration: 0.3 },
-          }}
-        >
-          {Math.round(progress)}%
-        </motion.p>
-      </div>
-    </motion.div>
-  )
-}
+import createImage from "./createImage"
+import LoadingScreen from "./LoadingScreen"
+import handleDrawCanvas from "./handleDrawCanvas"
+import SequenceContainer from "./SequenceContainer"
 
 const SpatialAudioSection = ({
   isSecondFormInView,
@@ -124,7 +41,7 @@ const SpatialAudioSection = ({
         ? `k_${i.toString().padStart(5, "0")}.webp`
         : `${i.toString().padStart(4, "0")}.webp`
 
-      const img = createImage(`${folderPath}/${fileName}`)
+      const img = createImage(`${folderPath}/${fileName}`, isMobile)
 
       const checkComplete = () => {
         loadedImages++
@@ -273,10 +190,10 @@ const SpatialAudioSection = ({
             </Container>
           </SequenceContainer>
           <motion.div
-            className="w-full px-5 sm:px-10 justify-center items-center max-w-full left-1/2 -translate-x-1/2  xl:pt-[40px] fixed xl:hidden flex"
+            className="w-full px-5 sm:px-10 justify-center items-center max-w-full left-1/2 -translate-x-1/2  xl:pt-[40px] fixed z-[999] xl:hidden flex"
             initial={{ top: "70vh" }}
             animate={{
-              top: initialContentOpacity.get() === 0 ? "90vh" : "75vh",
+              top: initialContentOpacity.get() === 0 ? "85vh" : "80vh",
             }}
             transition={{ duration: 0.3 }}
           >
@@ -286,10 +203,10 @@ const SpatialAudioSection = ({
             </div>
           </motion.div>
           <motion.div
-            className="w-full px-5 sm:px-10 justify-between items-center xl:max-w-[1440px] left-1/2 -translate-x-1/2  xl:pt-[40px] fixed xl:flex hidden"
-            initial={{ top: "70vh" }}
+            className="w-full px-5 sm:px-10 justify-between items-center xl:max-w-[1440px] left-1/2 -translate-x-1/2  xl:pt-[40px] z-[999] fixed xl:flex hidden"
+            initial={{ top: "75vh" }}
             animate={{
-              top: initialContentOpacity.get() === 0 ? "85vh" : "70vh",
+              top: initialContentOpacity.get() === 0 ? "80vh" : "75vh",
             }}
             transition={{ duration: 0.3 }}
           >
@@ -339,7 +256,7 @@ const SpatialAudioSection = ({
             </Container>
           </SequenceContainer>
           <SequenceContainer opacity={container3Opacity}>
-            <Container className="flex flex-col relative h-screen w-full justify-center items-end gap-y-2.5 lg:gap-y-[26px] ">
+            <Container className="flex flex-col relative h-screen w-full justify-center items-end gap-y-2.5 lg:gap-y-[26px] bg-gradient-to-l">
               <div className="flex flex-col gap-y-2.5 lg:gap-y-[26px] sm:gap-y-5 lg:pr-[48px]">
                 <span className="text-[36px] leading-[36px] sm:text-[60px] sm:leading-[60px] lg:text-[149px] font-semibold text-brand lg:leading-[149px] tracking-[-0.04em]">
                   BUTTER
@@ -373,7 +290,7 @@ const SpatialAudioSection = ({
             </Container>
           </SequenceContainer>
           <SequenceContainer opacity={container5Opacity}>
-            <Container className="h-screen pt-[180px] sm:pt-0 flex justify-center items-end pr-[36px] flex-col bg-[black]/50">
+            <Container className="h-screen pt-[180px] sm:pt-0 flex md:justify-center justify-end md:pb-0 pb-[180px] items-end pr-[36px] flex-col bg-gradient-to-b">
               <div className="flex flex-col gap-y-5 sm:gap-y-[30px] lg:gap-y-[37px]">
                 <span className="text-[36px] leading-[36px] sm:text-[60px] sm:leading-[60px] lg:text-[149px] font-semibold text-brand lg:leading-[149px] tracking-[-0.04em]">
                   A CREAMY <br /> SURPRISE
@@ -391,34 +308,4 @@ const SpatialAudioSection = ({
   )
 }
 
-const App = ({
-  isSecondFormInView,
-  adaptiveBottom,
-}: {
-  isSecondFormInView: boolean
-  adaptiveBottom: number
-}) => (
-  <main>
-    <div className="overflow-clip">
-      <SpatialAudioSection
-        isSecondFormInView={isSecondFormInView}
-        adaptiveBottom={adaptiveBottom}
-      />
-    </div>
-  </main>
-)
-
-interface SequenceContainerProps {
-  opacity: MotionValue<number>
-  children: React.ReactNode
-}
-
-function SequenceContainer({ opacity, children }: SequenceContainerProps) {
-  return (
-    <motion.div style={{ opacity }} className="absolute inset-0">
-      {children}
-    </motion.div>
-  )
-}
-
-export default App
+export default SpatialAudioSection

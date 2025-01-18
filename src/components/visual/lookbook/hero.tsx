@@ -100,7 +100,7 @@ const Hero = () => {
         className="w-full h-full absolute left-0 top-0"
         style={{
           background:
-            "radial-gradient(50% 50% at 50% 50%, #201A10 0%, #141414 100%)",
+            "radial-gradient(50% 50% at 50% 50%, #201A10 0%, #0F0F0F 100%)",
         }}
       />
       <div className="flex flex-col xl:flex-row items-center justify-center relative w-full">

@@ -11,6 +11,13 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        "gradient-to-b":
+          "linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 80%)",
+
+        "gradient-to-l":
+          "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 80%)",
+      },
       fontFamily: {
         sans: ["var(--font-vk-sans)", ...fontFamily.sans],
         display: ["var(--font-coolvetica)"],
@@ -66,7 +73,7 @@ const config: Config = {
         brand: "#FFD972",
         background: {
           100: "#1B1B1B",
-          200: "#141414",
+          200: "#0F0F0F",
         },
       },
       animation: {
