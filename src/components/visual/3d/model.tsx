@@ -1,14 +1,32 @@
 import { Canvas } from "@react-three/fiber"
-import { OrbitControls, Html } from "@react-three/drei"
+import { OrbitControls, Html, Environment } from "@react-three/drei"
 import { Suspense } from "react"
 import { Mesh } from "./mesh"
 import Light from "./light"
 import { useEffect, useState } from "react"
 
 const Loader = () => {
+  const [loadingProgress, setLoadingProgress] = useState(0)
+
+  useEffect(() => {
+    // Пример имитации загрузки
+    const interval = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev < 100) {
+          return prev + 10 // Увеличиваем прогресс на 10% каждые 100 мс
+        } else {
+          clearInterval(interval)
+          return 100 // Устанавливаем 100% после завершения загрузки
+        }
+      })
+    }, 100)
+
+    return () => clearInterval(interval) // Очистка интервала при размонтировании
+  }, [])
+
   return (
     <Html center>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center flex-col">
         <div className="relative w-16 h-16">
           <div className="absolute w-full h-full border-4 border-white/20 rounded-full" />
           <div
@@ -16,6 +34,7 @@ const Loader = () => {
             style={{ clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%)" }}
           />
         </div>
+        <div className="mt-2 text-white text-lg">{loadingProgress}%</div>
       </div>
     </Html>
   )
@@ -73,6 +92,7 @@ export default function Model() {
         />
         <Light />
         <Mesh />
+        <Environment preset="sunset" />
       </Suspense>
     </Canvas>
   )

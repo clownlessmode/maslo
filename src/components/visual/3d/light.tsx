@@ -3,7 +3,7 @@ import { useThree } from "@react-three/fiber"
 import { Color } from "three"
 
 const Light = () => {
-  const lightness = 2
+  const lightness = 1
 
   return (
     <>
@@ -48,11 +48,7 @@ const Light = () => {
       <ambientLight intensity={1 * lightness} color={0xffffff} />
 
       {/* Полусферическое освещение для более естественного вида */}
-      <hemisphereLight
-        skyColor={0xffffff}
-        groundColor={0x444444}
-        intensity={0.5 * lightness}
-      />
+      <hemisphereLight groundColor={0x444444} intensity={0.5 * lightness} />
 
       {/* Мягкий нижний свет для подсветки теней */}
       <pointLight

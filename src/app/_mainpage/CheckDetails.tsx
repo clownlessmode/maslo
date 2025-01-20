@@ -7,7 +7,7 @@ const CheckDetails = () => {
     <button
       className="rounded-[20px] md:rounded-[60px] bg-brand hover:text-md xl:hover:text-3xl
               text-md md:text-lg xl:text-2xl flex items-center justify-center w-1/2
-              font-semibold p-4 md:h-full h-[73px] text-black "
+              font-semibold p-4 md:h-full h-[73px] text-black transition-all"
     >
       <Link href="/details">CHECK DETAILS</Link>
     </button>

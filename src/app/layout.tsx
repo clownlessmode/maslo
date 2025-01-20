@@ -87,7 +87,10 @@ export default function RootLayout({
       className={cn(vksans.variable, coolvetica.variable)}
       suppressHydrationWarning
     >
-      <body className="font-sans text-white bg-background-200 antialiased selection:bg-white selection:text-background-200">
+      <body
+        className="font-sans text-white bg-background-200 antialiased selection:bg-white selection:text-background-200"
+        style={{ scrollBehavior: "smooth" }}
+      >
         <Providers>
           <Navbar />
           {children}
