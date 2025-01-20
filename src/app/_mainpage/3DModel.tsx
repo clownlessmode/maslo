@@ -9,8 +9,9 @@ const ThreeDModel = () => {
       className="order-first lg:order-2 md:col-span-2 md:row-span-3
             items-end justify-center flex 
             bg-background-100
+            overflow-hidden
             h-full
-            rounded-[30px] sm:w-[calc(100vw-80px)] sm:h-[calc(100vw-80px)] md:w-full md:h-full md:rounded-[60px] overflow-hidden min-h-[150px] min-w-[305px]"
+            rounded-[30px] sm:w-[calc(100vw-80px)] sm:h-[calc(100vw-80px)] md:w-full md:h-full md:rounded-[60px] min-h-[150px] min-w-[305px]"
     >
       {/* <ModelViewer key={1} /> */}
 
@@ -18,7 +19,7 @@ const ThreeDModel = () => {
         autoPlay
         loop
         muted
-        className="w-full h-full object-cover min-w-[300px] min-h-[300px]"
+        className="w-full h-full object-cover min-w-[300px] min-h-[300px] rounded-[30px] overflow-hidden"
       >
         <source src="/assets/loops.mp4" type="video/mp4" />
         <source src="/assets/loops.webm" type="video/webm" />
