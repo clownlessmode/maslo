@@ -28,8 +28,6 @@ import { useQuery } from "@tanstack/react-query"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { createOrder } from "@/lib/orders"
 import { calculatePrice } from "@/lib/checkout"
-import Model from "@/components/visual/3d/model"
-
 const formSchema = z
   .object({
     name: z.string().min(10, "ФИО должно содержать не менее 10 символов"),
@@ -157,7 +155,7 @@ const CheckoutPage = () => {
       <Container>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid lg:grid-cols-2 grid-cols-1 [&>*:first-child]:order-last [&>*:first-child]:lg:order-first space-x-5">
+            <div className="grid lg:grid-cols-2 grid-cols-1 [&>*:first-child]:order-last [&>*:first-child]:lg:order-first gap-5">
               <div className="flex flex-col gap-y-[60px]">
                 <div className="flex flex-col gap-y-[30px]">
                   <FormField
@@ -326,7 +324,6 @@ const CheckoutPage = () => {
                   Оформить заказ
                 </Button>
               </div>
-              {/* <Model key={10} /> */}
               <ProductCard />
             </div>
           </form>
@@ -354,10 +351,20 @@ const ProductCard = () => {
   }
 
   return (
-    <div className="flex w-full h-full my-[44px] flex-col rounded-[20px] max-h-[1104px] relative overflow-hidden">
-      <div className="flex items-center justify-center bg-[#171717] h-full">
-        <Model key={10} />
-      </div>
+    <div className="flex w-full h-full flex-col rounded-[20px] max-h-[1104px] relative overflow-hidden">
+      {/* <div className="flex items-center justify-center bg-[#171717] h-full"> */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        disablePictureInPicture
+        className="w-full h-full object-cover min-w-[300px] min-h-[300px] rounded-t-[20px] overflow-hidden"
+      >
+        <source src="/assets/loops.mp4" type="video/mp4" />
+        <source src="/assets/loops.webm" type="video/webm" />
+      </video>
+      {/* </div> */}
       <div className="h-50% p-[50px] bg-background-100 rounded-b-[20px] flex flex-col">
         <p className="md:text-[48px] md:leading-[58px] text-[32px] leading-[38px] font-semibold flex flex-col gap-0">
           <span className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">

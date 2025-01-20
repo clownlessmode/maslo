@@ -12,9 +12,6 @@ import dynamic from "next/dynamic"
 import ProductForm from "@/components/product-form"
 import BigAnimation from "@/components/big-animation/BigAnimation"
 import ImagesLookbook from "./ImagesLookbook"
-const ModelViewer = dynamic(() => import("@/components/visual/3d/model"), {
-  ssr: false,
-})
 
 function DetailsPage() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -87,6 +84,8 @@ function DetailsPage() {
             autoPlay
             loop
             muted
+            playsInline
+            disablePictureInPicture
             className="w-full h-full object-contain min-w-[300px] min-h-[300px]" // Изменено с object-cover на object-contain
           >
             <source src="/assets/loops.mp4" type="video/mp4" />

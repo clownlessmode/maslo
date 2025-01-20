@@ -1,8 +1,8 @@
 import React from "react"
 import dynamic from "next/dynamic"
-const ModelViewer = dynamic(() => import("@/components/visual/3d/model"), {
-  ssr: false,
-})
+// const ModelViewer = dynamic(() => import("@/components/visual/3d/model"), {
+//   ssr: false,
+// })
 const ThreeDModel = () => {
   return (
     <div
@@ -19,6 +19,8 @@ const ThreeDModel = () => {
         autoPlay
         loop
         muted
+        playsInline
+        disablePictureInPicture
         className="w-full h-full object-cover min-w-[300px] min-h-[300px] rounded-[30px] overflow-hidden"
       >
         <source src="/assets/loops.mp4" type="video/mp4" />

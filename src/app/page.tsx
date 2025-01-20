@@ -1,5 +1,3 @@
-"use client"
-
 import ThreeDModel from "./_mainpage/3DModel"
 import WarmAs from "./_mainpage/WarmAs"
 import CheckDetails from "./_mainpage/CheckDetails"
