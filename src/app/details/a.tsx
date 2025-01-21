@@ -89,7 +89,7 @@ function DetailsPage() {
             className="w-full h-full object-contain min-w-[300px] min-h-[300px]" // Изменено с object-cover на object-contain
           >
             <source src="/assets/loops.mp4" type="video/mp4" />
-            <source src="/assets/loops.webm" type="video/webm" />
+            {/* <source src="/assets/loops.webm" type="video/webm" /> */}
           </video>
         </div>
         <div

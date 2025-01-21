@@ -362,7 +362,7 @@ const ProductCard = () => {
         className="w-full h-full object-cover min-w-[300px] min-h-[300px] rounded-t-[20px] overflow-hidden"
       >
         <source src="/assets/loops.mp4" type="video/mp4" />
-        <source src="/assets/loops.webm" type="video/webm" />
+        {/* <source src="/assets/loops.webm" type="video/webm" /> */}
       </video>
       {/* </div> */}
       <div className="h-50% p-[50px] bg-background-100 rounded-b-[20px] flex flex-col">

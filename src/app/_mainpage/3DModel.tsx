@@ -24,7 +24,7 @@ const ThreeDModel = () => {
         className="w-full h-full object-cover min-w-[300px] min-h-[300px] rounded-[30px] overflow-hidden"
       >
         <source src="/assets/loops.mp4" type="video/mp4" />
-        <source src="/assets/loops.webm" type="video/webm" />
+        {/* <source src="/assets/loops.webm" type="video/webm" /> */}
       </video>
     </div>
   )

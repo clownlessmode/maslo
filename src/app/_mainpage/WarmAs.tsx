@@ -5,7 +5,7 @@ const WarmAs = () => {
   return (
     <div
       className="order-2 flex-grow md:order-1 md:col-span-2 flex justify-center
-          items-center md:row-span-2 bg-background-100 h-full sm:max-h-[10000px]
+          items-center md:row-span-2 bg-background-100 h-full md:max-h-[10000px] max-h-[150px]
           rounded-[30px] md:rounded-[60px] px-5 md:p-6 xl:h-full min-h-0"
     >
       <div className="md:block hidden">
