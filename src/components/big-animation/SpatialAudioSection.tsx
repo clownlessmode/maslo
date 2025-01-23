@@ -16,6 +16,10 @@ import createImage from "./createImage"
 import LoadingScreen from "./LoadingScreen"
 import handleDrawCanvas from "./handleDrawCanvas"
 import SequenceContainer from "./SequenceContainer"
+import Temperature from "./content/Temperature"
+import Butter from "./content/Butter"
+import Molniya from "./content/Molniya"
+import Creamy from "./content/Creamy"
 
 const SpatialAudioSection = ({
   isSecondFormInView,
@@ -228,21 +232,7 @@ const SpatialAudioSection = ({
             </motion.span>
           </motion.div>
           <SequenceContainer opacity={container1Opacity}>
-            <Container className="lg:justify-between justify-center -space-y-[93px] sm:-space-y-[140px] lg:-space-y-0 relative flex lg:flex-row flex-col md:mt-40 h-screen select-none pointer-events-none">
-              <div className="gap-y-[43px] flex flex-col">
-                <p className="2xl:leading-[36px] xl:leading-[36px] lg:leading-[36px] md:leading-[42px] sm:leading-[42px] leading-[26px] max-w-[269px] uppercase text-white text-[24px] sm:text-[42px] tracking-[-0.04em] sm:max-w-[487px] lg:text-4xl lg:max-w-[520px]">
-                  Какой у него температурный режим - ответь, бро?
-                </p>
-                <VisualElementBefore className="max-w-[100px] sm:max-w-[158px] lg:max-w-none" />
-              </div>
-              <div className="gap-y-8 sm:gap-y-10 lg:gap-y-[37px] items-end flex flex-col z-[5]">
-                <p className="2xl:leading-[36px] min-h-[108px] xl:leading-[36px] lg:leading-[36px] md:leading-[42px] sm:leading-[42px] leading-[26px] text-[24px] order-2 lg:order-1 sm:text-[42px] lg:text-4xl text-end uppercase">
-                  Ведь он не любит холод,
-                  <br /> <span className="font-semibold">ему лишь бы</span>
-                </p>
-                <VisualElementTemperature className="max-w-[171px] sm:max-w-[275px] lg:max-w-none order-1 lg:order-2" />
-              </div>
-            </Container>
+            <Temperature />
           </SequenceContainer>
           <SequenceContainer opacity={container2Opacity}>
             <Container className="flex flex-col gap-y-5 sm:gap-y-[30px] items-center lg:items-start lg:gap-y-[43px] justify-center h-screen bg-[black]/50 lg:bg-[black]/0">
@@ -256,51 +246,13 @@ const SpatialAudioSection = ({
             </Container>
           </SequenceContainer>
           <SequenceContainer opacity={container3Opacity}>
-            <Container className="flex flex-col relative h-screen w-full justify-center items-end gap-y-2.5 lg:gap-y-[26px] bg-gradient-to-l">
-              <div className="flex flex-col gap-y-2.5 lg:gap-y-[26px] sm:gap-y-5 lg:pr-[48px]">
-                <span className="text-[36px] leading-[36px] sm:text-[60px] sm:leading-[60px] lg:text-[149px] font-semibold text-brand lg:leading-[149px] tracking-[-0.04em]">
-                  BUTTER
-                </span>
-                <p className="text-4xl uppercase sm:text-[24px] sm:leading-[29px] sm:max-w-[300px] text-ellipsis lg:text-start lg:max-w-[650px] leading-[17px] text-[14px] lg:text-4xl text-white">
-                  <span className="font-semibold ">Сливочная эстетика:</span>
-                  <br /> узнаваемый шеврон бренда.
-                </p>
-              </div>
-              <div
-                className="flex items-center 
-    [@media(min-width:1360px)]:w-[68vw]
-        [@media(min-width:1460px)]:w-[66vw]
-    w-[66vw]
-  "
-              >
-                <div className="rounded-full bg-white md:p-[11px] p-[4px]">
-                  <div className="md:size-[18px] size-[8px] rounded-full bg-brand shadow shadow-brand" />
-                </div>
-                <div className="relative w-full h-[1px] bg-white" />
-              </div>
-            </Container>
+            <Butter />
           </SequenceContainer>
           <SequenceContainer opacity={container4Opacity}>
-            <Container className="pt-[150px] lg:pt-[200px]">
-              <p className="lg:text-4xl lg:max-w-[870px] text-[14px] max-w-[343px] sm:text-[24px] sm:max-w-[601px] uppercase">
-                А металлическая молния с гравированным логотипом? Она не только
-                надежно держит всё вместе, но и добавляет стильный штрих, чтобы
-                вы выглядели круче, чем ваш будильник в понедельник утром!
-              </p>
-            </Container>
+            <Molniya />
           </SequenceContainer>
           <SequenceContainer opacity={container5Opacity}>
-            <Container className="h-screen pt-[180px] sm:pt-0 flex md:justify-center justify-end md:pb-0 pb-[180px] items-end pr-[36px] flex-col bg-gradient-to-b">
-              <div className="flex flex-col gap-y-5 sm:gap-y-[30px] lg:gap-y-[37px]">
-                <span className="text-[36px] leading-[36px] sm:text-[60px] sm:leading-[60px] lg:text-[149px] font-semibold text-brand lg:leading-[149px] tracking-[-0.04em]">
-                  A CREAMY <br /> SURPRISE
-                </span>
-                <p className="lg:text-4xl lg:max-w-[827px] text-[14px] max-w-[325px] sm:text-[24px] sm:max-w-[595px] uppercase">
-                  Как тебе моя уютная обёртка? Я сливочное масло, здесь, чтобы
-                  убедиться, что ты не замерзаешь, а только греешься от смеха
-                </p>
-              </div>
-            </Container>
+            <Creamy />
           </SequenceContainer>
         </div>
       </section>
