@@ -3,7 +3,7 @@ import React from "react"
 
 const Molniya = () => {
   return (
-    <Container className="h-screen pt-[180px] sm:pt-0 flex pb-[200px] justify-end items-start pr-[36px] flex-col bg-gradient-to-b">
+    <Container className="h-screen pt-[180px] sm:pt-0 flex pb-[180px] justify-end items-start pr-[36px] flex-col bg-gradient-to-b">
       <div className="flex flex-col gap-y-5 sm:gap-y-[30px] lg:gap-y-[37px]">
         <p className="text-[36px] leading-[36px] sm:text-[48px] sm:leading-[48px] lg:text-[80px] font-semibold text-white lg:leading-[80px] tracking-[-0.04em]">
           А МЕТАЛЛИЧЕСКАЯ
