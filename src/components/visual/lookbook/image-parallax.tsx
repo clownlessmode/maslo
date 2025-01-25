@@ -62,7 +62,7 @@ const ImageParallax = () => {
       className:
         "w-[240px] h-[305px] sm:w-[290px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[460px] sm:h-[355px] md:h-[458px] lg:h-[458px] xl:h-[509px] 2xl:h-[585px]",
       position: { left: "20%", sm: "25%", xl: "363px" },
-      zIndex: 1,
+      zIndex: 3,
     },
     img4: {
       src: "/lookbook/parallax/6.jpg",
