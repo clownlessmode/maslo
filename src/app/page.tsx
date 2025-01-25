@@ -11,7 +11,7 @@ function HomePage() {
   useEffect(() => {
     const handleResize = () => {
       const height = window.innerHeight // Получаем высоту окна
-      setFixedHeight(height - 30) // Устанавливаем фиксированное значение
+      setFixedHeight(height - 50) // Устанавливаем фиксированное значение
     }
 
     handleResize() // Устанавливаем высоту при первом рендере
