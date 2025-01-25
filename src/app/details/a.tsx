@@ -78,11 +78,11 @@ function DetailsPage() {
           isSecondFormInView={isSecondFormInView}
         />
       </div>
-      {/* <BottomParallax secondFormRef={secondFormRef} /> */}
-      {/* <ImagesLookbook /> */}
-      <div className="h-[1000px] bg-red-500">
+      <BottomParallax secondFormRef={secondFormRef} />
+      <ImagesLookbook />
+      {/* <div className="h-[1000px] bg-red-500">
         <p>text</p>
-      </div>
+      </div> */}
     </div>
   )
 }
