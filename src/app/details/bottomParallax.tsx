@@ -4,11 +4,7 @@ import ProductForm from "@/components/product-form"
 import { VisualElementHeading } from "@/components/visual/details/heading"
 import React from "react"
 
-const BottomParallax = ({
-  secondFormRef,
-}: {
-  secondFormRef: React.RefObject<HTMLDivElement>
-}) => {
+const BottomParallax = () => {
   return (
     <Container className="flex pt-[150px] pb-[250px] flex-col items-center justify-center bg-[#0d0d0d] z-[999]">
       <div className="aspect-[1/1] max-w-[661px] overflow-hidden max-h-[661px] bg-background-100 rounded-[60px] w-full h-full">
@@ -23,10 +19,7 @@ const BottomParallax = ({
           <source src="/assets/loops.mp4" type="video/mp4" />
         </video>
       </div>
-      <div
-        ref={secondFormRef}
-        className="flex flex-col relative mx-auto justify-center items-center lg:gap-y-[30px] md:gap-y-[15px] gap-y-[10px] -mt-[85px] w-full"
-      >
+      <div className="flex flex-col relative mx-auto justify-center items-center lg:gap-y-[30px] md:gap-y-[15px] gap-y-[10px] -mt-[85px] w-full">
         <div className="hidden lg:block">
           <VisualElementHeading />
         </div>

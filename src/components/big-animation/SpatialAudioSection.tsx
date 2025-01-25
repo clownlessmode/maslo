@@ -20,14 +20,10 @@ import Temperature from "./content/Temperature"
 import Butter from "./content/Butter"
 import Molniya from "./content/Molniya"
 import Creamy from "./content/Creamy"
+import WarmAsFirst from "./content/WarmAsFirst"
+import Peach from "./content/Peach"
 
-const SpatialAudioSection = ({
-  isSecondFormInView,
-  adaptiveBottom,
-}: {
-  isSecondFormInView: boolean
-  adaptiveBottom: number
-}) => {
+const SpatialAudioSection = ({ height }: { height: number }) => {
   const TOTAL_FRAMES = 1501
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -95,30 +91,10 @@ const SpatialAudioSection = ({
     [1, 0]
   )
 
-  const [opacityValue, setOpacityValue] = useState(initialContentOpacity.get())
-
-  useEffect(() => {
-    const unsubscribe = initialContentOpacity.onChange((value) => {
-      setOpacityValue(value)
-    })
-
-    return () => unsubscribe()
-  }, [initialContentOpacity])
-
-  useEffect(() => {
-    console.log("progress изменился на:", progress)
-  }, [progress])
-
   const container1Opacity = useTransform(
     progress,
     [188 / TOTAL_FRAMES, 250 / TOTAL_FRAMES, 362 / TOTAL_FRAMES],
     [0, 1, 0]
-  )
-
-  const container1tOpacity = useTransform(
-    progress,
-    [188 / TOTAL_FRAMES, 250 / TOTAL_FRAMES, 362 / TOTAL_FRAMES],
-    [0, 1, 1]
   )
 
   const container2Opacity = useTransform(
@@ -127,33 +103,16 @@ const SpatialAudioSection = ({
     [0, 1, 0]
   )
 
-  const container2tOpacity = useTransform(
-    progress,
-    [410 / TOTAL_FRAMES, 510 / TOTAL_FRAMES, 688 / TOTAL_FRAMES],
-    [0, 1, 1]
-  )
-
   const container3Opacity = useTransform(
     progress,
     [766 / TOTAL_FRAMES, 840 / TOTAL_FRAMES, 900 / TOTAL_FRAMES],
     [0, 1, 0]
-  )
-  const container3tOpacity = useTransform(
-    progress,
-    [840 / TOTAL_FRAMES, 1000 / TOTAL_FRAMES, 1000 / TOTAL_FRAMES],
-    [1, 1, 1]
   )
 
   const container4Opacity = useTransform(
     progress,
     [932 / TOTAL_FRAMES, 1000 / TOTAL_FRAMES, 1160 / TOTAL_FRAMES],
     [0, 1, 0]
-  )
-
-  const container4tOpacity = useTransform(
-    progress,
-    [932 / TOTAL_FRAMES, 1000 / TOTAL_FRAMES, 1180 / TOTAL_FRAMES],
-    [0, 0, 1]
   )
 
   const container5Opacity = useTransform(
@@ -166,32 +125,13 @@ const SpatialAudioSection = ({
       <AnimatePresence>
         {isLoading && <LoadingScreen progress={loadingProgress} />}
       </AnimatePresence>
-      <section ref={containerRef} className="h-[1800vh]">
+
+      <section ref={containerRef} style={{ height: `${height * 18}px` }}>
         <div className="sticky top-0">
           <canvas ref={canvasRef} className="absolute inset-0 block" />
+
           <SequenceContainer opacity={initialContentOpacity}>
-            <Container className="absolute top-[60vh] left-0 w-full flex flex-col items-center">
-              <div className="xl:block hidden">
-                <VisualElementHeading />
-              </div>
-              <div className="xl:hidden flex flex-col gap-5">
-                <VisualElementHeadingSm />
-                <div className="flex justify-between w-full">
-                  <motion.span
-                    style={{ opacity: initialContentOpacity }}
-                    className="text-white/40 text-[14px] xl:text-2xl text-nowrap"
-                  >
-                    MATTHEW MASLOV
-                  </motion.span>
-                  <motion.span
-                    style={{ opacity: initialContentOpacity }}
-                    className="text-white/40 text-[14px] xl:text-2xl text-nowrap"
-                  >
-                    DOWN JACKET
-                  </motion.span>
-                </div>
-              </div>
-            </Container>
+            <WarmAsFirst initialContentOpacity={initialContentOpacity} />
           </SequenceContainer>
           <motion.div
             className="w-full px-5 sm:px-10 justify-center items-center max-w-full left-1/2 -translate-x-1/2  xl:pt-[40px] fixed z-[999] xl:hidden flex"
@@ -203,7 +143,6 @@ const SpatialAudioSection = ({
           >
             <div className="w-fit">
               <ProductForm />
-              {/* {opacityValue} */}
             </div>
           </motion.div>
           <motion.div
@@ -222,7 +161,6 @@ const SpatialAudioSection = ({
             </motion.span>
             <div className="w-fit">
               <ProductForm />
-              {/* {opacityValue} */}
             </div>
             <motion.span
               style={{ opacity: initialContentOpacity }}
@@ -235,15 +173,7 @@ const SpatialAudioSection = ({
             <Temperature />
           </SequenceContainer>
           <SequenceContainer opacity={container2Opacity}>
-            <Container className="flex flex-col gap-y-5 sm:gap-y-[30px] items-center lg:items-start lg:gap-y-[43px] justify-center h-screen bg-[black]/50 lg:bg-[black]/0">
-              <span className="text-[36px] lg:text-[149px] sm:text-[60px] sm:leading-[60px] text-center lg:text-start font-semibold leading-[36px] lg:leading-[149px] tracking-[-0.04em]">
-                <span className="text-brand">PEACH</span> <br />
-                ЭФФЕКТ
-              </span>
-              <p className="max-w-[300px] sm:text-[24px] sm:max-w-[491px] text-center lg:text-start lg:max-w-[650px] uppercase text-[14px] lg:text-4xl text-white">
-                Вы останетесь сухими и в безопасности даже в непогоду
-              </p>
-            </Container>
+            <Peach />
           </SequenceContainer>
           <SequenceContainer opacity={container3Opacity}>
             <Butter />
