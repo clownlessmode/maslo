@@ -25,9 +25,9 @@ function HomePage() {
   return (
     <div
       className={cn(
-        "flex md:flex-row flex-col-reverse w-full gap-2 md:gap-5 px-5 sm:px-10 md:pb-[calc(66px+80px)] md:py-[66px] pb-[calc(66px)]   h-full",
+        "flex md:flex-row flex-col-reverse w-full gap-2 md:gap-5 px-5 sm:px-10 md:pb-[calc(66px+80px)] md:py-[66px] pb-[calc(66px)]   md:h-full",
         "md:max-h-[95dvh]",
-        `max-h-[${fixedHeight}px]`
+        `h-[${fixedHeight}px]`
       )}
     >
       <div className="flex flex-col md:w-1/2 w-full md:h-full gap-2 md:gap-5 ">
