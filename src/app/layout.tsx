@@ -2,6 +2,7 @@ import { cn } from "@/utils"
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import { Providers } from "../components/providers"
+import { Analytics } from "@vercel/analytics/next"
 
 import "./globals.css"
 import Navbar from "@/components/layout/navbar"
@@ -95,6 +96,7 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Footer />
+          <Analytics />
         </Providers>
       </body>
     </html>
