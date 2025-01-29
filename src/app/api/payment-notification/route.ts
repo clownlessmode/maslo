@@ -17,9 +17,14 @@ const paymentNotificationSchema = z.object({
     "DEADLINE_EXPIRED",
   ]),
   OrderId: z.string(),
+  PaymentId: z.string(),
   Amount: z.number(),
   Pan: z.string().optional(),
   ExpDate: z.string().optional(),
+  Success: z.boolean().optional(),
+  ErrorCode: z.string().optional(),
+  TerminalKey: z.string().optional(),
+  Token: z.string().optional(),
 })
 
 const getStatusEmoji = (status: string) => {
@@ -63,10 +68,26 @@ const getStatusMessage = (status: string) => {
 export async function POST(request: Request) {
   try {
     const data = await request.json()
+    console.log("📥 Получены данные уведомления:", data)
+
     const validatedData = paymentNotificationSchema.safeParse(data)
 
     if (!validatedData.success) {
-      console.error("❌ Некорректные данные уведомления:", validatedData.error)
+      console.error("❌ Ошибка валидации данных:", {
+        error: validatedData.error,
+        receivedData: data,
+      })
+
+      await sendTelegramMessage({
+        message: `
+⚠️ Ошибка валидации платежного уведомления
+
+❌ Ошибка: ${JSON.stringify(validatedData.error.errors)}
+📦 Полученные данные: ${JSON.stringify(data)}
+⏱ Время: ${new Date().toLocaleString("ru-RU")}
+        `.trim(),
+      })
+
       return new NextResponse("Invalid notification data", { status: 400 })
     }
 

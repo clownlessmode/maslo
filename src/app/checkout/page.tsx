@@ -72,7 +72,11 @@ export default function Checkout({
   const [quantity, setQuantity] = useState(1)
   const [total, setTotal] = useState(13590)
 
-  const size = searchParams.size || "M" // Получаем размер из параметров или используем M по умолчанию
+  const size = searchParams.size
+    ? Array.isArray(searchParams.size)
+      ? searchParams.size[0]
+      : searchParams.size
+    : "M"
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     startTransition(async () => {
@@ -414,6 +418,7 @@ export default function Checkout({
                 setQuantity={setQuantity}
                 total={total}
                 setTotal={setTotal}
+                size={size}
               />
             </div>
           </form>
@@ -428,11 +433,13 @@ const ProductCard = ({
   setQuantity,
   total,
   setTotal,
+  size,
 }: {
   quantity: number
   setQuantity: (value: number) => void
   total: number
   setTotal: (value: number) => void
+  size: string
 }) => {
   // Создаем мемоизированную debounced функцию
   const debouncedCalculatePrice = useCallback(
