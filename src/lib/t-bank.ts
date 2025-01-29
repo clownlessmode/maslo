@@ -73,7 +73,6 @@ export async function createTBankSession(
         OrderId: orderId,
         Description: `Пуховик x${quantity}`,
         Token: token,
-        SuccessURL: `${process.env.VERCEL_URL}/payment/success`,
         DATA: {
           Email: data.Email,
         },
