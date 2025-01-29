@@ -16,7 +16,11 @@ const orderNotificationSchema = z.object({
 const prisma = db
 
 export async function createOrder(
-  formData: z.infer<typeof formSchema> & { quantity: number; amount: number }
+  formData: z.infer<typeof formSchema> & {
+    quantity: number
+    amount: number
+    orderId: string
+  }
 ) {
   console.log("🚀 Создание нового заказа...", {
     name: formData.name,
@@ -24,13 +28,15 @@ export async function createOrder(
     shipmentMethod: formData.shipment,
   })
 
-  const tinkoffOrderId = `ecli-${Date.now()}-${Math.random()
-    .toString(36)
-    .substr(2, 4)}`
+  const emailPrefix = formData.email.split("@")[0].slice(0, 4)
+  const timestamp = Date.now()
+  const randomSuffix = Math.random().toString(36).slice(2, 4)
+
+  const tinkoffOrderId = `${emailPrefix}-${timestamp}-${randomSuffix}`
 
   const order = await prisma.order.create({
     data: {
-      id: tinkoffOrderId,
+      id: formData.orderId,
       customerName: formData.name,
       customerEmail: formData.email,
       customerPhone: formData.phone,
