@@ -31,7 +31,11 @@ import { calculatePrice } from "@/lib/checkout"
 import formSchema from "./schema"
 import debounce from "lodash/debounce"
 
-const CheckoutPage = () => {
+export default function Checkout({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,6 +71,8 @@ const CheckoutPage = () => {
 
   const [quantity, setQuantity] = useState(1)
   const [total, setTotal] = useState(13590)
+
+  const size = searchParams.size || "M" // Получаем размер из параметров или используем M по умолчанию
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     startTransition(async () => {
@@ -477,7 +483,7 @@ const ProductCard = ({
         </p>
         <div className="flex items-center justify-between mt-[35px]">
           <p className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">
-            SIZE: M {/* size */}
+            SIZE: {size.toString().toUpperCase()}
           </p>
           <div className="md:space-x-[45px] space-x-[20px] flex items-center">
             <div className="flex items-center space-x-3">
@@ -545,5 +551,3 @@ const PlusIcon = () => (
     />
   </svg>
 )
-
-export default CheckoutPage
