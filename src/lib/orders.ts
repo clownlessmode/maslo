@@ -5,6 +5,7 @@ import { z } from "zod"
 import formSchema from "@/app/checkout/schema"
 import { db } from "@/db"
 import { sendTelegramMessage } from "@/lib/telegram"
+import { generateOrderId } from "@/lib/utils"
 
 const orderNotificationSchema = z.object({
   OrderId: z.string(),
@@ -19,7 +20,6 @@ export async function createOrder(
   formData: z.infer<typeof formSchema> & {
     quantity: number
     amount: number
-    orderId: string
   }
 ) {
   console.log("🚀 Создание нового заказа...", {
@@ -28,15 +28,11 @@ export async function createOrder(
     shipmentMethod: formData.shipment,
   })
 
-  const emailPrefix = formData.email.split("@")[0].slice(0, 4)
-  const timestamp = Date.now()
-  const randomSuffix = Math.random().toString(36).slice(2, 4)
-
-  const tinkoffOrderId = `${emailPrefix}-${timestamp}-${randomSuffix}`
+  const tinkoffOrderId = generateOrderId(formData.email)
 
   const order = await prisma.order.create({
     data: {
-      id: formData.orderId,
+      id: tinkoffOrderId,
       customerName: formData.name,
       customerEmail: formData.email,
       customerPhone: formData.phone,

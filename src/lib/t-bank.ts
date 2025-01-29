@@ -112,6 +112,7 @@ export async function createTBankSession(
     return {
       success: true as const,
       url: responseData.PaymentURL,
+      orderId: orderId,
     }
   } catch (error) {
     // Log error securely

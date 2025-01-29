@@ -81,34 +81,27 @@ export default function Checkout({
   function onSubmit(data: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        // Валидация формы
-        const validationResult = formSchema.safeParse(data)
-
-        if (!validationResult.success) {
-          console.log("Ошибки валидации:")
-          validationResult.error.errors.forEach((error) => {
-            console.log(`- ${error.message}`)
-          })
-          return
-        }
-
-        // Create order first with quantity and total from ProductCard
-        const order = await createOrder({
-          ...data,
+        const tbankResponse = await createTBankSession({
+          email: data.email,
+          phone: data.phone,
           quantity: quantity,
-          amount: total * 100, // Convert to kopeks
         })
 
-        // Only create payment session if order creation was successful
-        if (order) {
-          createTBankSession()
+        if (tbankResponse.success && tbankResponse.orderId) {
+          // Создаем заказ с тем же ID
+          await createOrder({
+            ...data,
+            quantity,
+            amount: total * 100,
+            orderId: tbankResponse.orderId,
+          })
+
+          if (tbankResponse.url) {
+            router.push(tbankResponse.url)
+          }
         }
       } catch (error) {
-        if (error instanceof Error) {
-          console.log("Ошибка валидации:", error.message)
-        } else {
-          console.error("Failed to create order:", error)
-        }
+        console.error("Ошибка при создании заказа:", error)
       }
     })
   }
