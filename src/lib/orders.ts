@@ -55,26 +55,68 @@ export async function handlePaymentNotification(data: unknown) {
   const notification = orderNotificationSchema.parse(data)
 
   if (notification.Status === "CONFIRMED") {
-    console.log("✅ Оплата подтверждена для заказа:", notification.OrderId)
+    await sendTelegramMessage({
+      message: `
+🔍 Поиск заказа...
+ID для поиска: ${notification.OrderId}
+PaymentId: ${notification.PaymentId}
+Сумма: ${notification.Amount / 100} ₽
+      `.trim(),
+    })
 
-    const order = await prisma.order.update({
+    const existingOrder = await prisma.order.findUnique({
       where: { id: notification.OrderId },
-      data: {
-        status: "PAID",
-        paymentId: notification.PaymentId,
-        updatedAt: new Date(),
-      },
     })
 
     await sendTelegramMessage({
-      message: `💳 Получена оплата!\n\nЗаказ: ${notification.OrderId}\nСумма: ${
-        notification.Amount / 100
-      } руб.`,
+      message: `
+${existingOrder ? "✅" : "❌"} Результат поиска заказа:
+Искомый ID: ${notification.OrderId}
+${
+  existingOrder
+    ? `Найден заказ:
+  - ID: ${existingOrder.id}
+  - Статус: ${existingOrder.status}
+  - Клиент: ${existingOrder.customerName}
+  - Email: ${existingOrder.customerEmail}
+  - Сумма: ${existingOrder.amount / 100} ₽`
+    : "Заказ не найден в базе данных!"
+}
+      `.trim(),
     })
 
-    if (order.shipmentMethod === "CDEK") {
-      console.log("📦 Создание отправления CDEK...")
-      await createCdekShipment(order)
+    if (!existingOrder) {
+      console.error("❌ Заказ не найден в базе данных")
+      return
+    }
+
+    try {
+      const order = await prisma.order.update({
+        where: { id: existingOrder.id },
+        data: {
+          status: "PAID",
+          paymentId: notification.PaymentId,
+          updatedAt: new Date(),
+        },
+      })
+
+      await sendTelegramMessage({
+        message: `
+✅ Заказ успешно обновлён:
+ID: ${order.id}
+Новый статус: ${order.status}
+PaymentId: ${order.paymentId}
+        `.trim(),
+      })
+    } catch (error) {
+      await sendTelegramMessage({
+        message: `
+❌ Ошибка при обновлении заказа:
+ID: ${existingOrder.id}
+Ошибка: ${error instanceof Error ? error.message : "Неизвестная ошибка"}
+        `.trim(),
+      })
+      throw error
     }
   }
 }
