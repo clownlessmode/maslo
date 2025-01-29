@@ -64,6 +64,28 @@ PaymentId: ${notification.PaymentId}
       `.trim(),
     })
 
+    // Получаем все последние заказы
+    const recentOrders = await prisma.order.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+    })
+
+    await sendTelegramMessage({
+      message: `
+📋 Последние заказы в базе:
+${recentOrders
+  .map(
+    (order) => `
+- ID: ${order.id}
+  Статус: ${order.status}
+  Клиент: ${order.customerName}
+  Сумма: ${order.amount / 100} ₽
+  Создан: ${order.createdAt.toLocaleString("ru-RU")}`
+  )
+  .join("\n")}
+      `.trim(),
+    })
+
     const existingOrder = await prisma.order.findUnique({
       where: { id: notification.OrderId },
     })
