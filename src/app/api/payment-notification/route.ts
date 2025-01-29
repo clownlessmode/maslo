@@ -17,7 +17,7 @@ const paymentNotificationSchema = z.object({
     "DEADLINE_EXPIRED",
   ]),
   OrderId: z.string(),
-  PaymentId: z.string(),
+  PaymentId: z.union([z.string(), z.number()]),
   Amount: z.number(),
   Pan: z.string().optional(),
   ExpDate: z.string().optional(),
