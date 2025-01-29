@@ -2,6 +2,7 @@ import { handlePaymentNotification } from "@/lib/orders"
 import { NextResponse } from "next/server"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { z } from "zod"
+import { db } from "@/db"
 
 // Validation schema for payment notification
 const paymentNotificationSchema = z.object({

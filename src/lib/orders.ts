@@ -58,9 +58,10 @@ export async function handlePaymentNotification(data: unknown) {
     console.log("✅ Оплата подтверждена для заказа:", notification.OrderId)
 
     const order = await prisma.order.update({
-      where: { paymentId: notification.PaymentId },
+      where: { id: notification.OrderId },
       data: {
         status: "PAID",
+        paymentId: notification.PaymentId,
         updatedAt: new Date(),
       },
     })
