@@ -24,8 +24,13 @@ export async function createOrder(
     shipmentMethod: formData.shipment,
   })
 
+  const tinkoffOrderId = `ecli-${Date.now()}-${Math.random()
+    .toString(36)
+    .substr(2, 4)}`
+
   const order = await prisma.order.create({
     data: {
+      id: tinkoffOrderId,
       customerName: formData.name,
       customerEmail: formData.email,
       customerPhone: formData.phone,
