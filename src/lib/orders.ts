@@ -107,7 +107,6 @@ class OrderService {
         pickupOffice: formData.pickup_office,
         amount: formData.amount,
         quantity: formData.quantity,
-        tariff_code: 136,
       },
     })
 
@@ -141,15 +140,6 @@ class OrderService {
 // Shipment Service
 class ShipmentService {
   static prepareCdekData(order: Order): CdekShipmentData {
-    // Убедитесь, что все необходимые поля заполнены
-    if (!order.tariff_code) {
-      throw new Error("tariff_code is required")
-    }
-
-    if (!order.customerPhone || !/^(\+7\d{10})$/.test(order.customerPhone)) {
-      throw new Error("Invalid phone number format")
-    }
-
     return {
       recipient: {
         name: order.customerName,
@@ -179,32 +169,27 @@ class ShipmentService {
   static async createShipment(order: Order) {
     logger.info("📦 Формирование данных для CDEK...", order.id)
 
-    try {
-      const cdekOrderData = this.prepareCdekData(order)
-      const result = await registerCdekOrder(cdekOrderData)
+    const cdekOrderData = this.prepareCdekData(order)
+    const result = await registerCdekOrder(cdekOrderData)
 
-      if (!result.success) {
-        await NotificationService.sendShipmentError(order.id, result.error)
-        throw new Error(`Failed to create CDEK shipment: ${result.error}`)
-      }
-
-      await db.order.update({
-        where: { id: order.id },
-        data: {
-          cdekOrderId: result.order.order_id,
-          status: "SHIPPING",
-        },
-      })
-
-      await NotificationService.sendShipmentCreated(
-        order.id,
-        result.order.order_id
-      )
-      return result.order
-    } catch (error) {
-      console.error("CDEK order registration error:", error)
-      throw error
+    if (!result.success) {
+      await NotificationService.sendShipmentError(order.id, result.error)
+      throw new Error(`Failed to create CDEK shipment: ${result.error}`)
     }
+
+    await db.order.update({
+      where: { id: order.id },
+      data: {
+        cdekOrderId: result.order.order_id,
+        status: "SHIPPING",
+      },
+    })
+
+    await NotificationService.sendShipmentCreated(
+      order.id,
+      result.order.order_id
+    )
+    return result.order
   }
 }
 

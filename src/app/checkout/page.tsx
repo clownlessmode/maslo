@@ -27,16 +27,25 @@ import { getCdekOffices } from "@/lib/cdek"
 import { useQuery } from "@tanstack/react-query"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { createOrder } from "@/lib/orders"
-import { calculatePrice } from "@/lib/checkout"
 import formSchema from "./schema"
-import debounce from "lodash/debounce"
-
+import RightSide from "./RightSide"
 export default function Checkout({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [quantity, setQuantity] = useState(1)
+  const [total, setTotal] = useState(13590)
+  const [cities, setCities] = useState<City[]>([])
+
+  const size = searchParams.size
+    ? Array.isArray(searchParams.size)
+      ? searchParams.size[0]
+      : searchParams.size
+    : "M"
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,64 +58,75 @@ export default function Checkout({
     },
   })
 
-  const { mutate: createTBankSession } = useMutation({
-    mutationFn: async () => {
+  const { mutateAsync: createTBankSession } = useMutation({
+    mutationFn: async (data: {
+      email: string
+      phone: string
+      quantity: number
+    }) => {
       const res = await client.payment.createTBankSession.$post({
-        email: form.getValues("email"),
-        phone: form.getValues("phone"),
-        quantity: quantity,
+        email: data.email,
+        phone: data.phone,
+        quantity: data.quantity,
       })
-      return await res.json()
-    },
-    onSuccess: (data) => {
-      if (data.success && data.url) {
-        router.push(data.url)
-      } else {
-        console.error("Ошибка при создании сессии:", data)
+      return (await res.json()) as {
+        success: boolean
+        orderId?: string
+        url?: string
       }
     },
   })
 
-  const [isPending, startTransition] = useTransition()
-
-  const [quantity, setQuantity] = useState(1)
-  const [total, setTotal] = useState(13590)
-
-  const size = searchParams.size
-    ? Array.isArray(searchParams.size)
-      ? searchParams.size[0]
-      : searchParams.size
-    : "M"
-
   function onSubmit(data: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
+        console.log("🚀 Начало создания заказа...")
+
+        // Сначала получаем сессию Тинькофф
         const tbankResponse = await createTBankSession({
           email: data.email,
           phone: data.phone,
           quantity: quantity,
         })
 
-        if (tbankResponse.success && tbankResponse.orderId) {
-          // Создаем заказ с тем же ID
-          await createOrder({
-            ...data,
-            quantity,
-            amount: total * 100,
-            orderId: tbankResponse.orderId,
-          })
+        console.log("📦 Ответ от TBank:", tbankResponse)
 
-          if (tbankResponse.url) {
-            router.push(tbankResponse.url)
-          }
+        if (!tbankResponse.success || !tbankResponse.orderId) {
+          throw new Error("Не удалось создать платежную сессию")
+        }
+
+        // Создаем заказ с ID от Тинькофф
+        const order = await createOrder({
+          ...data,
+          quantity,
+          amount: total * 100,
+          orderId: tbankResponse.orderId, // Используем точно тот же ID
+        })
+
+        console.log("✅ Заказ создан:", {
+          orderId: order.id,
+          tinkoffId: tbankResponse.orderId,
+        })
+
+        // Только после успешного создания заказа делаем редирект
+        if (order && tbankResponse.url) {
+          router.push(tbankResponse.url)
         }
       } catch (error) {
-        console.error("Ошибка при создании заказа:", error)
+        console.error("❌ Ошибка при создании заказа:", error)
+        await sendTelegramMessage({
+          message: `
+  ⚠️ Ошибка создания заказа
+
+  ❌ Ошибка: ${error instanceof Error ? error.message : "Неизвестная ошибка"}
+  📧 Email: ${data.email}
+  💰 Сумма: ${total} руб.
+  ⏱ Время: ${new Date().toLocaleString("ru-RU")}
+            `.trim(),
+        })
       }
     })
   }
-
-  const [cities, setCities] = useState<City[]>([])
 
   useEffect(() => {
     fetchCities()
@@ -406,7 +426,7 @@ export default function Checkout({
                   Оформить заказ
                 </Button>
               </div>
-              <ProductCard
+              <RightSide
                 quantity={quantity}
                 setQuantity={setQuantity}
                 total={total}
@@ -420,134 +440,3 @@ export default function Checkout({
     </div>
   )
 }
-
-const ProductCard = ({
-  quantity,
-  setQuantity,
-  total,
-  setTotal,
-  size,
-}: {
-  quantity: number
-  setQuantity: (value: number) => void
-  total: number
-  setTotal: (value: number) => void
-  size: string
-}) => {
-  // Создаем мемоизированную debounced функцию
-  const debouncedCalculatePrice = useCallback(
-    debounce(async (newQuantity: number) => {
-      const result = await calculatePrice(newQuantity)
-      if (result.success) {
-        setQuantity(result.quantity as unknown as number)
-        setTotal(result.total as unknown as number)
-      }
-    }, 300), // 300ms задержка
-    [setQuantity, setTotal]
-  )
-
-  const handleQuantityChange = (e: React.MouseEvent, increment: boolean) => {
-    e.preventDefault()
-
-    const newQuantity = increment ? quantity + 1 : quantity - 1
-    if (newQuantity < 1 || newQuantity > 5) return
-
-    // Сразу обновляем UI для лучшего UX
-    setQuantity(newQuantity)
-    // Делаем запрос с задержкой
-    debouncedCalculatePrice(newQuantity)
-  }
-
-  return (
-    <div className="flex w-full h-full flex-col rounded-[20px] max-h-[1104px] relative overflow-hidden ">
-      {/* <div className="flex items-center justify-center bg-[#171717] h-full"> */}
-
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        disablePictureInPicture
-        className="w-full h-full object-cover min-w-[300px] min-h-[300px]"
-      >
-        <source src="/assets/loops.mp4" type="video/mp4" />
-        {/* <source src="/assets/loops.webm" type="video/webm" /> */}
-      </video>
-
-      <div className="h-50% p-[50px] bg-background-100 rounded-b-[20px] flex flex-col">
-        <p className="md:text-[48px] md:leading-[58px] text-[32px] leading-[38px] font-semibold flex flex-col gap-0">
-          <span className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">
-            Down Jacket
-          </span>
-          &quot;WARM AS BUTTER&quot;
-        </p>
-        <div className="flex items-center justify-between mt-[35px]">
-          <p className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">
-            SIZE: {size.toString().toUpperCase()}
-          </p>
-          <div className="md:space-x-[45px] space-x-[20px] flex items-center">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={(e) => handleQuantityChange(e, false)}
-                disabled={quantity <= 1}
-                className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
-                type="button"
-              >
-                <MinusIcon />
-              </button>
-              <span className="md:text-[2rem] md:leading-[2.4rem] text-[1.2rem] leading-[1.4rem]">
-                {quantity}X
-              </span>
-              <button
-                onClick={(e) => handleQuantityChange(e, true)}
-                disabled={quantity >= 5}
-                className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
-                type="button"
-              >
-                <PlusIcon />
-              </button>
-            </div>
-            <span className="md:text-[2rem] md:leading-[2.4rem] text-[1.2rem] leading-[1.4rem]">
-              {total.toLocaleString()}₽
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Separate SVG components for cleaner code
-const MinusIcon = () => (
-  <svg width="12" height="3" viewBox="0 0 12 3" fill="none">
-    <line
-      x1="11.6719"
-      y1="1.40675"
-      x2="0.265012"
-      y2="1.40675"
-      stroke="#0F0F0F"
-      strokeWidth="1.7549"
-    />
-  </svg>
-)
-
-const PlusIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-    <line
-      x1="5.96534"
-      y1="0.264648"
-      x2="5.96534"
-      y2="11.6715"
-      stroke="#0F0F0F"
-      strokeWidth="1.7549"
-    />
-    <line
-      x1="11.6055"
-      y1="6.03077"
-      x2="0.198606"
-      y2="6.03077"
-      stroke="#0F0F0F"
-      strokeWidth="1.7549"
-    />
-  </svg>
-)
