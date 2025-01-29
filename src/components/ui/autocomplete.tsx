@@ -106,17 +106,22 @@ export const AutoComplete = ({
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
-          className="text-base"
+          className={cn(
+            "flex h-[69px] w-full text-2xl uppercase rounded-[20px] bg-background-100 px-[50px] font-normal py-5",
+            "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-zinc-950",
+            "placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#767676]",
+            "disabled:cursor-not-allowed disabled:opacity-50"
+          )}
         />
       </div>
       <div className="relative mt-1">
         <div
           className={cn(
-            "animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full rounded-xl bg-white outline-none",
+            "animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full rounded-[20px] bg-background-100 outline-none",
             isOpen ? "block" : "hidden"
           )}
         >
-          <CommandList className="rounded-lg ring-1 ring-slate-200">
+          <CommandList className="rounded-[20px] ring-1 ring-[#767676]">
             {isLoading && (
               <CommandPrimitive.Loading>
                 <div className="p-1">
@@ -138,8 +143,9 @@ export const AutoComplete = ({
                       }}
                       onSelect={() => handleSelectOption(option)}
                       className={cn(
-                        "flex w-full items-center gap-2",
-                        !isSelected ? "pl-8" : ""
+                        "flex w-full items-center gap-2 px-[50px] py-6 text-2xl uppercase text-white",
+                        "hover:bg-white/20 cursor-pointer rounded-md",
+                        !isSelected ? "pl-[70px]" : ""
                       )}
                     >
                       {isSelected && <Check className="w-4" />}
@@ -150,7 +156,7 @@ export const AutoComplete = ({
               </CommandGroup>
             )}
             {!isLoading && filteredOptions.length === 0 && (
-              <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-center text-sm">
+              <CommandPrimitive.Empty className="select-none px-[50px] py-4 text-2xl uppercase text-white/40">
                 {emptyMessage}
               </CommandPrimitive.Empty>
             )}

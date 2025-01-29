@@ -175,6 +175,9 @@ interface CdekDeliveryPoint {
   code: string
   name: string
   address: string
+  location: {
+    address: string
+  }
   work_time: string
   phones: Array<{ number: string }>
   email?: string

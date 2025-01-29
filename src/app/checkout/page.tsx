@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { fetchCities, City } from "@/lib/cities"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 
 import { AutoComplete } from "@/components/ui/autocomplete"
 import {
@@ -28,82 +28,77 @@ import { useQuery } from "@tanstack/react-query"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { createOrder } from "@/lib/orders"
 import { calculatePrice } from "@/lib/checkout"
-const formSchema = z
-  .object({
-    name: z.string().min(10, "ФИО должно содержать не менее 10 символов"),
-    email: z.string().email("Некорректный адрес электронной почты"),
-    phone: z
-      .string()
-      .min(12, "Номер телефона должен содержать не менее 11 цифр")
-      .refine(
-        (value) => {
-          const digitsOnly = value.replace(/\D/g, "")
-          return digitsOnly.length === 11 && digitsOnly.startsWith("7")
-        },
-        { message: "Некорректный номер телефона" }
-      ),
-    city: z.string().min(1, "Город обязателен к заполнению"),
-    shipment: z.enum(["pochta", "cdek", "selfpickup"], {
-      required_error: "Необходимо выбрать вид доставки",
-    }),
-    pickup_office: z
-      .string()
-      .min(1, "Обязательно выбрать пункт выдачи")
-      .optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.shipment !== "selfpickup" && !data.pickup_office) {
-        return false
-      }
-      return true
-    },
-    {
-      message: "Обязательно выбрать пункт выдачи",
-      path: ["pickup_office"],
-      //   value: z.number().min(0, "Некорректный формат цены"),
-      //   quantity: z.number().min(1).max(5),
-    }
-  )
-
-interface Option {
-  label: string
-  value: string
-}
+import formSchema from "./schema"
+import debounce from "lodash/debounce"
 
 const CheckoutPage = () => {
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      shipment: "pochta",
+      street: "",
+      house: "",
+      apartment: "",
+      postalCode: "",
+      pickup_office: "",
+    },
   })
 
   const { mutate: createTBankSession } = useMutation({
     mutationFn: async () => {
-      const res = await client.payment.createTBankSession.$post()
+      const res = await client.payment.createTBankSession.$post({
+        email: form.getValues("email"),
+        phone: form.getValues("phone"),
+        quantity: quantity,
+      })
       return await res.json()
     },
-    onSuccess: ({ url }) => {
-      if (url) {
-        router.push(url)
+    onSuccess: (data) => {
+      if (data.success && data.url) {
+        router.push(data.url)
+      } else {
+        console.error("Ошибка при создании сессии:", data)
       }
     },
   })
 
   const [isPending, startTransition] = useTransition()
 
+  const [quantity, setQuantity] = useState(1)
+  const [total, setTotal] = useState(13590)
+
   function onSubmit(data: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        // Create order first
-        const order = await createOrder(data)
+        // Валидация формы
+        const validationResult = formSchema.safeParse(data)
+
+        if (!validationResult.success) {
+          console.log("Ошибки валидации:")
+          validationResult.error.errors.forEach((error) => {
+            console.log(`- ${error.message}`)
+          })
+          return
+        }
+
+        // Create order first with quantity and total from ProductCard
+        const order = await createOrder({
+          ...data,
+          quantity: quantity,
+          amount: total * 100, // Convert to kopeks
+        })
 
         // Only create payment session if order creation was successful
         if (order) {
           createTBankSession()
         }
       } catch (error) {
-        console.error("Failed to create order:", error)
-        // You may want to show an error toast here
+        if (error instanceof Error) {
+          console.log("Ошибка валидации:", error.message)
+        } else {
+          console.error("Failed to create order:", error)
+        }
       }
     })
   }
@@ -146,9 +141,16 @@ const CheckoutPage = () => {
         value: office.code,
       }))
     }
-    // Add other delivery method options here
     return []
   }, [selectedShipment, cdekOffices])
+
+  // Добавим useEffect для инициализации формы
+  useEffect(() => {
+    const shipmentMethod = form.getValues("shipment")
+    if (!shipmentMethod) {
+      form.setValue("shipment", "pochta")
+    }
+  }, [form])
 
   return (
     <div className="pt-[60px] pb-[100px] min-h-screen">
@@ -243,8 +245,20 @@ const CheckoutPage = () => {
                       <FormItem className="flex flex-col space-y-[15px]">
                         <FormControl>
                           <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue="pochta"
+                            onValueChange={(value) => {
+                              field.onChange(value)
+                              // Очищаем поля адреса при смене способа доставки
+                              if (value !== "pochta") {
+                                form.setValue("street", "")
+                                form.setValue("house", "")
+                                form.setValue("apartment", "")
+                                form.setValue("postalCode", "")
+                              }
+                              if (value !== "cdek") {
+                                form.setValue("pickup_office", "")
+                              }
+                            }}
+                            value={field.value}
                             className="pt-2"
                           >
                             <FormItem className="flex items-center space-x-[25px]">
@@ -264,7 +278,7 @@ const CheckoutPage = () => {
                               </FormControl>
                               <FormLabel className="uppercase">сдэк</FormLabel>
                               <span className="text-lg text-white/40 uppercase pl-[5px]">
-                                оот 7 дней, от 500 р.
+                                от 7 дней, от 500 р.
                               </span>
                             </FormItem>
                             <FormItem className="flex items-center space-x-[25px]">
@@ -289,14 +303,16 @@ const CheckoutPage = () => {
                     render={({ field }) => (
                       <FormItem className="flex flex-col space-y-[15px]">
                         <FormLabel className="uppercase pl-[50px]">
-                          пункт получения
+                          {selectedShipment === "pochta"
+                            ? "адрес доставки"
+                            : "пункт получения"}
                         </FormLabel>
                         <FormControl>
                           {selectedShipment === "selfpickup" ? (
                             <Input
                               disabled
                               placeholder="Самовывоз"
-                              {...field}
+                              value={"Улица Пушкина, д.Колотушкина 13, кв.37"}
                             />
                           ) : selectedShipment === "cdek" ? (
                             <AutoComplete
@@ -310,10 +326,73 @@ const CheckoutPage = () => {
                               disabled={!selectedCity}
                             />
                           ) : (
-                            <Input
-                              placeholder="Выберите пункт получения"
-                              {...field}
-                            />
+                            <div className="flex flex-col gap-4">
+                              <FormField
+                                control={form.control}
+                                name="street"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Улица"
+                                        {...field}
+                                        disabled={!selectedCity}
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+
+                              <div className="flex gap-4">
+                                <FormField
+                                  control={form.control}
+                                  name="house"
+                                  render={({ field }) => (
+                                    <FormItem className="w-1/3">
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Дом"
+                                          disabled={!selectedCity}
+                                          {...field}
+                                          type="number"
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="apartment"
+                                  render={({ field }) => (
+                                    <FormItem className="w-1/3">
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Квартира"
+                                          disabled={!selectedCity}
+                                          type="number"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="postalCode"
+                                  render={({ field }) => (
+                                    <FormItem className="w-1/3">
+                                      <FormControl>
+                                        <Input
+                                          disabled={!selectedCity}
+                                          placeholder="Индекс"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
                           )}
                         </FormControl>
                       </FormItem>
@@ -324,7 +403,12 @@ const CheckoutPage = () => {
                   Оформить заказ
                 </Button>
               </div>
-              <ProductCard />
+              <ProductCard
+                quantity={quantity}
+                setQuantity={setQuantity}
+                total={total}
+                setTotal={setTotal}
+              />
             </div>
           </form>
         </Form>
@@ -333,38 +417,57 @@ const CheckoutPage = () => {
   )
 }
 
-const ProductCard = () => {
-  const [quantity, setQuantity] = useState(1)
-  const [total, setTotal] = useState(19000)
+const ProductCard = ({
+  quantity,
+  setQuantity,
+  total,
+  setTotal,
+}: {
+  quantity: number
+  setQuantity: (value: number) => void
+  total: number
+  setTotal: (value: number) => void
+}) => {
+  // Создаем мемоизированную debounced функцию
+  const debouncedCalculatePrice = useCallback(
+    debounce(async (newQuantity: number) => {
+      const result = await calculatePrice(newQuantity)
+      if (result.success) {
+        setQuantity(result.quantity as unknown as number)
+        setTotal(result.total as unknown as number)
+      }
+    }, 300), // 300ms задержка
+    [setQuantity, setTotal]
+  )
 
-  const handleQuantityChange = async (increment: boolean) => {
+  const handleQuantityChange = (e: React.MouseEvent, increment: boolean) => {
+    e.preventDefault()
+
     const newQuantity = increment ? quantity + 1 : quantity - 1
-
     if (newQuantity < 1 || newQuantity > 5) return
 
-    const result = await calculatePrice(newQuantity)
-
-    if (result.success) {
-      setQuantity(result.quantity)
-      setTotal(result.total)
-    }
+    // Сразу обновляем UI для лучшего UX
+    setQuantity(newQuantity)
+    // Делаем запрос с задержкой
+    debouncedCalculatePrice(newQuantity)
   }
 
   return (
-    <div className="flex w-full h-full flex-col rounded-[20px] max-h-[1104px] relative overflow-hidden">
+    <div className="flex w-full h-full flex-col rounded-[20px] max-h-[1104px] relative overflow-hidden ">
       {/* <div className="flex items-center justify-center bg-[#171717] h-full"> */}
+
       <video
         autoPlay
         loop
         muted
         playsInline
         disablePictureInPicture
-        className="w-full h-full object-cover min-w-[300px] min-h-[300px] rounded-t-[20px] overflow-hidden"
+        className="w-full h-full object-cover min-w-[300px] min-h-[300px]"
       >
         <source src="/assets/loops.mp4" type="video/mp4" />
         {/* <source src="/assets/loops.webm" type="video/webm" /> */}
       </video>
-      {/* </div> */}
+
       <div className="h-50% p-[50px] bg-background-100 rounded-b-[20px] flex flex-col">
         <p className="md:text-[48px] md:leading-[58px] text-[32px] leading-[38px] font-semibold flex flex-col gap-0">
           <span className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">
@@ -379,9 +482,10 @@ const ProductCard = () => {
           <div className="md:space-x-[45px] space-x-[20px] flex items-center">
             <div className="flex items-center space-x-3">
               <button
-                onClick={() => handleQuantityChange(false)}
+                onClick={(e) => handleQuantityChange(e, false)}
                 disabled={quantity <= 1}
                 className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
+                type="button"
               >
                 <MinusIcon />
               </button>
@@ -389,9 +493,10 @@ const ProductCard = () => {
                 {quantity}X
               </span>
               <button
-                onClick={() => handleQuantityChange(true)}
+                onClick={(e) => handleQuantityChange(e, true)}
                 disabled={quantity >= 5}
                 className="size-[22px] rounded-full flex items-center justify-center text-black bg-brand disabled:opacity-50"
+                type="button"
               >
                 <PlusIcon />
               </button>

@@ -1,11 +1,11 @@
 interface TelegramMessage {
-  chatId: string
   message: string
 }
 
-async function sendTelegramMessage({ chatId, message }: TelegramMessage) {
+async function sendTelegramMessage({ message }: TelegramMessage) {
+  const chatId = process.env.CHATID
   const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
-  const TELEGRAM_API_URL = `https://api.telegram.org/bot7834529036:AAHIKlB49MBtpMeI1RJmZoCcsY8HkjY6ju4/sendMessage`
+  const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`
 
   try {
     const response = await fetch(TELEGRAM_API_URL, {

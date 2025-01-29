@@ -17,7 +17,6 @@ const paymentNotificationSchema = z.object({
     "DEADLINE_EXPIRED",
   ]),
   OrderId: z.string(),
-  // Add other fields as needed
 })
 
 export async function POST(request: Request) {
@@ -37,7 +36,6 @@ export async function POST(request: Request) {
 
     // Log notification for debugging
     await sendTelegramMessage({
-      chatId: "5141393525",
       message: `Payment ${validatedData.data.Status}: Order ${validatedData.data.OrderId}`,
     })
 

@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { calculatePrice } from "@/lib/checkout"
 import { generateToken } from "@/helpers/token"
+import { sendTelegramMessage } from "@/lib/telegram"
 
 const paymentDataSchema = z.object({
   Email: z.string().email(),
@@ -25,15 +26,25 @@ function generateOrderId(data: z.infer<typeof paymentDataSchema>): string {
 export async function createTBankSession(
   data: z.infer<typeof paymentDataSchema>
 ) {
+  console.log("💳 Создание платежной сессии...", {
+    email: data.Email,
+    quantity: data.Quantity,
+  })
+
   try {
-    // Validate input data
     const validatedData = paymentDataSchema.parse(data)
     const orderId = generateOrderId(data)
-    // Recalculate price server-side to prevent manipulation
-    const priceResult = await calculatePrice(validatedData.Quantity)
-    if (!priceResult.success) throw new Error("Invalid price calculation")
 
-    // Use environment variables for sensitive data
+    // Recalculate price server-side to prevent manipulation
+    console.log("💰 Расчет стоимости заказа...")
+    const priceResult = await calculatePrice(validatedData.Quantity)
+    if (!priceResult.success || !priceResult.total || !priceResult.quantity) {
+      throw new Error("Invalid price calculation")
+    }
+
+    const amount = priceResult.total * 100 // Теперь TypeScript уверен, что total существует
+    const quantity = priceResult.quantity
+
     const terminalKey = process.env.TBANK_TERMINAL_KEY
     const password = process.env.TBANK_PASSWORD
 
@@ -41,14 +52,16 @@ export async function createTBankSession(
       throw new Error("Missing payment provider credentials")
     }
 
+    console.log("🔑 Генерация токена для оплаты...")
     const token = await generateToken({
       TerminalKey: terminalKey,
-      Amount: 1359000,
+      Amount: amount,
       OrderId: orderId,
-      Description: `Пуховик x1`,
+      Description: `Пуховик x${quantity}`,
       Password: password,
     })
 
+    console.log("🌐 Отправка запроса в платежный шлюз...")
     const response = await fetch("https://securepay.tinkoff.ru/v2/Init", {
       method: "POST",
       headers: {
@@ -56,9 +69,9 @@ export async function createTBankSession(
       },
       body: JSON.stringify({
         TerminalKey: terminalKey,
-        Amount: 1359000,
+        Amount: amount,
         OrderId: orderId,
-        Description: `Пуховик x1`,
+        Description: `Пуховик x${quantity}`,
         Token: token,
         DATA: {
           Email: data.Email,
@@ -69,9 +82,9 @@ export async function createTBankSession(
           Items: [
             {
               Name: "Пуховик",
-              Price: 1359000, // Price per item
-              Quantity: 1,
-              Amount: 1359000,
+              Price: amount / quantity, // Цена за единицу
+              Quantity: quantity,
+              Amount: amount,
               Tax: "vat10",
             },
           ],
@@ -82,14 +95,19 @@ export async function createTBankSession(
     const responseData = (await response.json()) as TBankResponse
 
     if (!responseData.Success) {
-      // Log error securely without exposing sensitive data
-      console.error("Payment provider error:", {
-        errorCode: responseData.ErrorCode,
-        orderId: orderId,
-        timestamp: new Date().toISOString(),
+      console.error("❌ Ошибка платежного шлюза:", responseData.ErrorCode)
+      await sendTelegramMessage({
+        message: `⚠️ Ошибка создания платежа!\n\nEmail: ${data.Email}\nОшибка: ${responseData.ErrorCode}`,
       })
       return { success: false as const, error: "Payment initialization failed" }
     }
+
+    console.log("✅ Платежная сессия создана успешно")
+    await sendTelegramMessage({
+      message: `💳 Создана платежная сессия!\n\nEmail: ${data.Email}\nСумма: ${
+        amount / 100
+      } руб.`,
+    })
 
     return {
       success: true as const,

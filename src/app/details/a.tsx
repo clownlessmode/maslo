@@ -4,6 +4,7 @@ import BigAnimation from "@/components/big-animation/BigAnimation"
 import ImagesLookbook from "./ImagesLookbook"
 import BottomParallax from "./bottomParallax"
 import { useEffect, useState } from "react"
+import { Item } from "@radix-ui/react-radio-group"
 
 function DetailsPage() {
   const [fixedHeight, setFixedHeight] = useState(0) // Устанавливаем начальное значение в 0
@@ -24,7 +25,7 @@ function DetailsPage() {
   }, [])
 
   return (
-    <div className="bg-[#0d0d0d] -mt-[85px]">
+    <div className="bg-[#0d0d0d] -mt-[85px] ">
       <BigAnimation height={fixedHeight} />
       <BottomParallax />
       <ImagesLookbook />
