@@ -140,11 +140,17 @@ class OrderService {
 
 // Shipment Service
 class ShipmentService {
-  static prepareCdekData(order: Order): any {
+  static prepareCdekData(order: Order): CdekShipmentData {
+    const phoneNumber = order.customerPhone.replace(/\D/g, "").slice(-10)
+
     return {
       recipient: {
         name: order.customerName,
-        phones: [{ number2: order.customerPhone.replace(/\D/g, "") }],
+        phones: [
+          {
+            number2: phoneNumber.length === 10 ? phoneNumber : "",
+          },
+        ],
       },
       to_location: {
         city: order.city,
@@ -153,7 +159,7 @@ class ShipmentService {
         {
           number: order.id,
           weight: PRODUCT_WEIGHT_GRAMS,
-          items4: [
+          items: [
             {
               name: PRODUCT_NAME,
               ware_key: PRODUCT_SKU,
@@ -173,7 +179,7 @@ class ShipmentService {
 
     const cdekOrderData = this.prepareCdekData(order)
     const result = await registerCdekOrder(cdekOrderData)
-
+    console.log(result, "CDEK RESULT")
     if (!result.success) {
       await NotificationService.sendShipmentError(order.id, result.error)
       throw new Error(`Failed to create CDEK shipment: ${result.error}`)
