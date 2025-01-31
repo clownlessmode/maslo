@@ -176,6 +176,11 @@ class ShipmentService {
     logger.info("📦 Формирование данных для CDEK...", order.id)
 
     const cdekOrderData = this.prepareCdekData(order)
+    logger.info("CDEK Data:", JSON.stringify(cdekOrderData, null, 2))
+    logger.info(
+      "tariff_code type:",
+      typeof cdekOrderData.packages[0].tariff_code
+    )
     const result = await registerCdekOrder(cdekOrderData)
     console.log(result, "CDEK RESULT")
     if (!result.success) {
