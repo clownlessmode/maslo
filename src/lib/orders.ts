@@ -140,7 +140,7 @@ class OrderService {
 
 // Shipment Service
 class ShipmentService {
-  static prepareCdekData(order: Order): CdekShipmentData {
+  static prepareCdekData(order: Order): any {
     const phoneNumber = order.customerPhone.replace(/\D/g, "").slice(-10)
 
     return {
@@ -156,7 +156,7 @@ class ShipmentService {
         {
           number: order.id,
           weight: PRODUCT_WEIGHT_GRAMS,
-          tariff_code: 136, // Confirmed valid tariff code
+          tariff_code: 136,
           items: [
             {
               name: PRODUCT_NAME,
@@ -166,6 +166,7 @@ class ShipmentService {
               amount: order.quantity,
             },
           ],
+          items4: [], // Добавлен пустой массив items4
         },
       ],
     }
