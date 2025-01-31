@@ -1,55 +1,58 @@
-"use server"
-
-import { Order, ShipmentMethod } from "@prisma/client"
-import { z } from "zod"
+import { Order } from "@prisma/client"
+import { getCdekToken } from "./cdek"
 import { db } from "@/db"
-import { registerCdekOrder } from "@/lib/cdek"
-import { sendTelegramMessage } from "@/lib/telegram"
-import formSchema from "@/app/checkout/schema"
-
-// Types
-type CreateOrderData = z.infer<typeof formSchema> & {
-  quantity: number
-  amount: number
-  orderId: string
-}
-
-type CdekShipmentData = {
-  recipient: {
-    name: string
-    phones: { number2: string }[]
-  }
-  to_location: {
-    city: string
-  }
-  packages: {
-    number: string
-    weight: number
-    items: {
-      name: string
-      ware_key: string
-      cost: number
-      weight: number
-      amount: number
-    }[]
-    tariff_code: number
-  }[]
-}
-
-// Schemas
-const orderNotificationSchema = z.object({
-  OrderId: z.string(),
-  Status: z.string(),
-  PaymentId: z.string(),
-  Amount: z.number(),
-})
 
 // Constants
 const PRODUCT_WEIGHT_GRAMS = 1540
 const PRODUCT_SKU = "jacket-001"
 const PRODUCT_NAME = "Пуховик"
 
-// Logger
+// Define NotificationService interface
+interface NotificationService {
+  sendShipmentError: (orderId: string, error: string) => Promise<void>
+  sendShipmentCreated: (orderId: string, shipmentId: string) => Promise<void>
+}
+
+// Type definitions for CDEK API
+interface CdekOrderData {
+  type: number
+  tariff_code: number
+  number: string
+  delivery_point?: string | null
+  to_location?: {
+    city: string
+  }
+  recipient: {
+    name: string
+    phones: Array<{
+      number2: string
+    }>
+    email: string
+  }
+  packages: Array<{
+    number: string
+    weight: number
+    items: Array<{
+      name: string
+      ware_key: string
+      payment: {
+        value: number
+      }
+      cost: number
+      weight: number
+      amount: number
+    }>
+  }>
+}
+
+interface CdekApiResponse {
+  entity?: {
+    uuid: string
+    [key: string]: any
+  }
+}
+
+// Logger with context
 const logger = {
   info: (message: string, ...args: any[]) => {
     const timestamp = new Date().toISOString()
@@ -65,256 +68,174 @@ const logger = {
   },
 }
 
-// Notification Service
-class NotificationService {
-  static async sendOrderCreated(order: Order, formData: CreateOrderData) {
-    logger.info("📨 Отправка уведомления о новом заказе", { orderId: order.id })
+export function prepareCdekOrderData(order: Order): CdekOrderData {
+  logger.info("📦 Подготовка данных для отправки в CDEK API", {
+    orderId: order.id,
+    city: order.city,
+  })
 
-    const message = `
-🛍 Новый заказ создан!
+  const phoneNumber = order.customerPhone.replace(/\D/g, "").slice(-10)
+  logger.debug("Обработанный номер телефона", {
+    original: order.customerPhone,
+    processed: phoneNumber,
+  })
 
-ID: ${order.id}
-Имя: ${formData.name}
-Email: ${formData.email}
-Телефон: ${formData.phone}
-Город: ${formData.city}
-Количество: ${formData.quantity}
-Сумма: ${formData.amount / 100} руб.
-    `.trim()
+  // Prepare base order data
+  const orderData: CdekOrderData = {
+    type: 1, // Договор "интернет-магазин"
+    tariff_code: 136,
+    number: order.id,
+    delivery_point: order.pickupOffice,
 
-    logger.debug("Содержание уведомления:", message)
-
-    try {
-      await sendTelegramMessage({ message })
-      logger.info("✅ Уведомление успешно отправлено", { orderId: order.id })
-    } catch (error) {
-      logger.error("❌ Ошибка при отправке уведомления", {
-        orderId: order.id,
-        error,
-      })
-      throw error
-    }
-  }
-
-  static async sendOrderNotFound(orderId: string) {
-    logger.info("📨 Отправка уведомления о ненайденном заказе", { orderId })
-    await sendTelegramMessage({
-      message: `❌ Заказ не найден в базе данных!\nID: ${orderId}`,
-    })
-  }
-
-  static async sendShipmentCreated(orderId: string, trackingNumber: string) {
-    logger.info("📨 Отправка уведомления о созданной доставке", {
-      orderId,
-      trackingNumber,
-    })
-    await sendTelegramMessage({
-      message: `📦 Создано отправление CDEK!\n\nЗаказ: ${orderId}\nТрек-номер: ${trackingNumber}`,
-    })
-  }
-
-  static async sendShipmentError(orderId: string, error: string) {
-    logger.info("📨 Отправка уведомления об ошибке доставки", {
-      orderId,
-      error,
-    })
-    await sendTelegramMessage({
-      message: `⚠️ Ошибка создания отправления CDEK!\n\nЗаказ: ${orderId}\nОшибка: ${error}`,
-    })
-  }
-}
-
-// Order Service
-class OrderService {
-  static async create(formData: CreateOrderData): Promise<Order> {
-    logger.info("🚀 Начало создания заказа", {
-      orderId: formData.orderId,
-      formData: {
-        name: formData.name,
-        email: formData.email,
-        city: formData.city,
-        quantity: formData.quantity,
-        amount: formData.amount,
-        shipmentMethod: formData.shipment,
-      },
-    })
-
-    try {
-      const order = await db.order.create({
-        data: {
-          id: formData.orderId,
-          customerName: formData.name,
-          customerEmail: formData.email,
-          customerPhone: formData.phone,
-          city: formData.city,
-          shipmentMethod: formData.shipment.toUpperCase() as ShipmentMethod,
-          pickupOffice: formData.pickup_office,
-          amount: formData.amount,
-          quantity: formData.quantity,
-        },
-      })
-
-      logger.info("📝 Заказ создан в базе данных", {
-        orderId: order.id,
-        status: order.status,
-        amount: order.amount,
-      })
-
-      await NotificationService.sendOrderCreated(order, formData)
-      logger.info("✅ Процесс создания заказа успешно завершен", {
-        orderId: order.id,
-      })
-      return order
-    } catch (error) {
-      logger.error("❌ Ошибка при создании заказа", {
-        orderId: formData.orderId,
-        error: error instanceof Error ? error.message : "Unknown error",
-      })
-      throw error
-    }
-  }
-
-  static async updatePaymentStatus(
-    orderId: string,
-    paymentId: string
-  ): Promise<Order> {
-    logger.info("💳 Обновление статуса оплаты", { orderId, paymentId })
-
-    try {
-      const order = await db.order.update({
-        where: { id: orderId },
-        data: {
-          status: "PAID",
-          paymentId,
-          updatedAt: new Date(),
-        },
-      })
-
-      logger.info("✅ Статус оплаты обновлен", {
-        orderId,
-        status: order.status,
-        paymentId: order.paymentId,
-      })
-
-      return order
-    } catch (error) {
-      logger.error("❌ Ошибка при обновлении статуса оплаты", {
-        orderId,
-        paymentId,
-        error: error instanceof Error ? error.message : "Unknown error",
-      })
-      throw error
-    }
-  }
-
-  static async getRecentOrders(limit = 5) {
-    logger.info("📊 Запрос последних заказов", { limit })
-
-    try {
-      const orders = await db.order.findMany({
-        take: limit,
-        orderBy: { createdAt: "desc" },
-      })
-
-      logger.info("✅ Получены последние заказы", {
-        count: orders.length,
-        orderIds: orders.map((o) => o.id),
-      })
-
-      return orders
-    } catch (error) {
-      logger.error("❌ Ошибка при получении последних заказов", {
-        limit,
-        error: error instanceof Error ? error.message : "Unknown error",
-      })
-      throw error
-    }
-  }
-}
-
-// Shipment Service
-class ShipmentService {
-  static prepareCdekData(order: Order): any {
-    logger.info("📦 Подготовка данных для CDEK", { orderId: order.id })
-
-    const phoneNumber = order.customerPhone.replace(/\D/g, "").slice(-10)
-    logger.debug("Обработанный номер телефона", {
-      original: order.customerPhone,
-      processed: phoneNumber,
-    })
-
-    const cdekData = {
-      recipient: {
-        name: order.customerName,
-        phones:
-          phoneNumber.length === 10 ? [{ number2: "+7" + phoneNumber }] : [],
-      },
-      to_location: {
-        city: order.city,
-      },
-      tariff_code: 136,
-      packages: [
+    recipient: {
+      name: order.customerName,
+      phones: [
         {
-          number: order.id,
-          weight: PRODUCT_WEIGHT_GRAMS,
-          items: [
-            {
-              name: PRODUCT_NAME,
-              ware_key: PRODUCT_SKU,
-              cost: Math.max(order.amount / 100, 1),
-              weight: PRODUCT_WEIGHT_GRAMS,
-              amount: Math.max(order.quantity, 1),
-            },
-          ],
-          items4: [],
+          number2:
+            phoneNumber.length === 10
+              ? `+7${phoneNumber}`
+              : order.customerPhone,
         },
       ],
+      email: order.customerEmail,
+    },
+
+    packages: [
+      {
+        number: "1",
+        weight: PRODUCT_WEIGHT_GRAMS,
+        items: [
+          {
+            name: PRODUCT_NAME,
+            ware_key: PRODUCT_SKU,
+            payment: {
+              value: order.amount / 100, // Конвертируем копейки в рубли
+            },
+            cost: order.amount / 100,
+            weight: PRODUCT_WEIGHT_GRAMS,
+            amount: order.quantity,
+          },
+        ],
+      },
+    ],
+  }
+
+  // If we have city name but no delivery_point, use to_location
+  if (!order.pickupOffice && order.city) {
+    delete orderData.delivery_point
+    orderData.to_location = {
+      city: order.city,
+    }
+  }
+
+  logger.debug(
+    "Подготовленные данные для CDEK:",
+    JSON.stringify(orderData, null, 2)
+  )
+
+  return orderData
+}
+
+export async function registerCdekOrder(
+  data: CdekOrderData
+): Promise<
+  | { success: true; order: CdekApiResponse["entity"] }
+  | { success: false; error: string }
+> {
+  logger.info("🚀 Отправка заказа в CDEK API")
+
+  try {
+    const token = await getCdekToken()
+    logger.debug("Получен токен CDEK")
+
+    const isProduction = process.env.NODE_ENV === "production"
+    const url = isProduction
+      ? "https://api.cdek.ru/v2/orders"
+      : "https://api.edu.cdek.ru/v2/orders"
+
+    logger.debug("Отправка запроса в CDEK", {
+      url,
+      data: JSON.stringify(data, null, 2),
+    })
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+
+    const responseData: CdekApiResponse = await response.json()
+    logger.debug("Получен ответ от CDEK:", responseData)
+
+    if (!response.ok) {
+      logger.error("❌ Ошибка от API CDEK", {
+        status: response.status,
+        error: responseData,
+      })
+      return {
+        success: false,
+        error: `Failed to create CDEK order: ${JSON.stringify(responseData)}`,
+      }
     }
 
-    logger.debug("Подготовленные данные для CDEK", cdekData)
-    return cdekData
+    logger.info("✅ Заказ успешно создан в CDEK", {
+      orderId: responseData.entity?.uuid,
+    })
+
+    return {
+      success: true,
+      order: responseData.entity,
+    }
+  } catch (error) {
+    logger.error("❌ Ошибка при регистрации заказа в CDEK", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    })
+    return {
+      success: false,
+      error: "Failed to process CDEK order registration",
+    }
+  }
+}
+
+export class ShipmentService {
+  private static notificationService: NotificationService
+
+  static initialize(notificationService: NotificationService) {
+    this.notificationService = notificationService
   }
 
   static async createShipment(order: Order) {
     logger.info("🚚 Начало создания отправления CDEK", { orderId: order.id })
 
     try {
-      const cdekOrderData = this.prepareCdekData(order)
-      logger.debug(
-        "Данные для API CDEK:",
-        JSON.stringify(cdekOrderData, null, 2)
-      )
-
+      const cdekOrderData = prepareCdekOrderData(order)
       const result = await registerCdekOrder(cdekOrderData)
-      logger.debug("Ответ от API CDEK:", result)
 
       if (!result.success) {
-        logger.error("❌ Ошибка от API CDEK", {
-          orderId: order.id,
-          error: result.error,
-        })
-        await NotificationService.sendShipmentError(order.id, result.error)
-        throw new Error(`Failed to create CDEK shipment: ${result.error}`)
+        await this.notificationService.sendShipmentError(order.id, result.error)
+        throw new Error(result.error)
       }
 
       const updatedOrder = await db.order.update({
         where: { id: order.id },
         data: {
-          cdekOrderId: result.order.order_id,
+          cdekOrderId: result.order.uuid,
           status: "SHIPPING",
         },
       })
 
       logger.info("✅ Отправление CDEK успешно создано", {
         orderId: order.id,
-        cdekOrderId: result.order.order_id,
+        cdekOrderId: result.order.uuid,
       })
 
-      await NotificationService.sendShipmentCreated(
+      await this.notificationService.sendShipmentCreated(
         order.id,
-        result.order.order_id
+        result.order.uuid
       )
-
       return result.order
     } catch (error) {
       logger.error("❌ Ошибка при создании отправления", {
@@ -323,78 +244,5 @@ class ShipmentService {
       })
       throw error
     }
-  }
-}
-
-// Main handlers
-export async function createOrder(formData: CreateOrderData) {
-  logger.info("➡️ Вход в обработчик createOrder", { orderId: formData.orderId })
-  try {
-    const order = await OrderService.create(formData)
-    logger.info("⬅️ Выход из обработчика createOrder", {
-      orderId: order.id,
-      status: "success",
-    })
-    return order
-  } catch (error) {
-    logger.error("⬅️ Выход из обработчика createOrder с ошибкой", {
-      orderId: formData.orderId,
-      error: error instanceof Error ? error.message : "Unknown error",
-    })
-    throw error
-  }
-}
-
-export async function handlePaymentNotification(data: unknown) {
-  logger.info("➡️ Вход в обработчик платежного уведомления", { data })
-
-  try {
-    const notification = orderNotificationSchema.parse(data)
-    logger.info("✅ Уведомление прошло валидацию", {
-      orderId: notification.OrderId,
-      status: notification.Status,
-    })
-
-    if (notification.Status !== "CONFIRMED") {
-      logger.info("⏭️ Пропуск обработки: статус не CONFIRMED", {
-        status: notification.Status,
-      })
-      return
-    }
-
-    const existingOrder = await db.order.findUnique({
-      where: { id: notification.OrderId },
-    })
-
-    if (!existingOrder) {
-      logger.error("❌ Заказ не найден", { orderId: notification.OrderId })
-      await NotificationService.sendOrderNotFound(notification.OrderId)
-      return
-    }
-
-    logger.info("📝 Заказ найден, обновление статуса", {
-      orderId: existingOrder.id,
-    })
-
-    const updatedOrder = await OrderService.updatePaymentStatus(
-      existingOrder.id,
-      notification.PaymentId
-    )
-
-    logger.info("🚚 Создание отправления", { orderId: updatedOrder.id })
-    await ShipmentService.createShipment(updatedOrder)
-
-    logger.info("⬅️ Выход из обработчика платежного уведомления", {
-      orderId: notification.OrderId,
-      status: "success",
-    })
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Неизвестная ошибка"
-    logger.error("❌ Ошибка в обработчике платежного уведомления", {
-      error: errorMessage,
-      data,
-    })
-    throw error
   }
 }
