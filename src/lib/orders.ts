@@ -161,9 +161,9 @@ class ShipmentService {
             {
               name: PRODUCT_NAME,
               ware_key: PRODUCT_SKU,
-              cost: order.amount / 100,
+              cost: Math.max(order.amount / 100, 1), // Ensure positive cost
               weight: PRODUCT_WEIGHT_GRAMS,
-              amount: order.quantity,
+              amount: Math.max(order.quantity, 1), // Ensure positive amount
             },
           ],
           items4: [], // Добавлен пустой массив items4
