@@ -156,7 +156,7 @@ class ShipmentService {
         {
           number: order.id,
           weight: PRODUCT_WEIGHT_GRAMS,
-          tariff_code: 0,
+          tariff_code: 136,
           items: [
             {
               name: PRODUCT_NAME,
