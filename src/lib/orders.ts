@@ -146,11 +146,8 @@ class ShipmentService {
     return {
       recipient: {
         name: order.customerName,
-        phones: [
-          {
-            number2: phoneNumber.length === 10 ? phoneNumber : "",
-          },
-        ],
+        phones:
+          phoneNumber.length === 10 ? [{ number2: "+7" + phoneNumber }] : [],
       },
       to_location: {
         city: order.city,
@@ -159,6 +156,7 @@ class ShipmentService {
         {
           number: order.id,
           weight: PRODUCT_WEIGHT_GRAMS,
+          tariff_code: 136, // Confirmed valid tariff code
           items: [
             {
               name: PRODUCT_NAME,
@@ -168,7 +166,6 @@ class ShipmentService {
               amount: order.quantity,
             },
           ],
-          tariff_code: 291,
         },
       ],
     }
