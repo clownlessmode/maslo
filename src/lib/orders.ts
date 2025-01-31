@@ -32,6 +32,7 @@ type CdekShipmentData = {
       weight: number
       amount: number
     }[]
+    tariff_code: number
   }[]
 }
 
@@ -139,11 +140,11 @@ class OrderService {
 
 // Shipment Service
 class ShipmentService {
-  static prepareCdekData(order: Order): CdekShipmentData {
+  static prepareCdekData(order: Order): any {
     return {
       recipient: {
         name: order.customerName,
-        phones: [{ number2: order.customerPhone }],
+        phones: [{ number2: order.customerPhone.replace(/\D/g, "") }],
       },
       to_location: {
         city: order.city,
@@ -152,7 +153,7 @@ class ShipmentService {
         {
           number: order.id,
           weight: PRODUCT_WEIGHT_GRAMS,
-          items: [
+          items4: [
             {
               name: PRODUCT_NAME,
               ware_key: PRODUCT_SKU,
@@ -161,6 +162,7 @@ class ShipmentService {
               amount: order.quantity,
             },
           ],
+          tariff_code: 291,
         },
       ],
     }
