@@ -144,23 +144,15 @@ class ShipmentService {
     const phoneNumber = order.customerPhone.replace(/\D/g, "").slice(-10)
 
     return {
-      uuid: crypto.randomUUID(), // Generate unique UUID
-      type: 1, // Internet shop order type
-      number: order.id,
-      tariff_code: 136, // Confirmed tariff code
       recipient: {
         name: order.customerName,
-        phones: [
-          {
-            number: `+7${phoneNumber}`,
-            additional: "",
-          },
-        ],
+        phones:
+          phoneNumber.length === 10 ? [{ number2: "+7" + phoneNumber }] : [],
       },
       to_location: {
         city: order.city,
-        country: "RU",
       },
+      tariff_code: 136,
       packages: [
         {
           number: order.id,
@@ -169,11 +161,12 @@ class ShipmentService {
             {
               name: PRODUCT_NAME,
               ware_key: PRODUCT_SKU,
-              cost: order.amount / 100,
+              cost: Math.max(order.amount / 100, 1), // Ensure positive cost
               weight: PRODUCT_WEIGHT_GRAMS,
-              amount: order.quantity,
+              amount: Math.max(order.quantity, 1), // Ensure positive amount
             },
           ],
+          items4: [], // Добавлен пустой массив items4
         },
       ],
     }
