@@ -247,10 +247,15 @@ class ShipmentService {
       recipient: {
         name: order.customerName,
         phones:
-          phoneNumber.length === 10 ? [{ number2: "+7" + phoneNumber }] : [],
+          phoneNumber.length === 10 ? [{ number: "+7" + phoneNumber }] : [], // TODO: было number2 )
+      },
+      from_location: {
+        city: "Москва",
+        address: "Колымажный переулок, 10, Москва", // TODO: заменить на необходимое
       },
       to_location: {
         city: order.city,
+        address: "улица имени Калинина, 189, Краснодар", // TODO: заменить на необходимое
       },
       tariff_code: 136,
       packages: [
@@ -264,9 +269,11 @@ class ShipmentService {
               cost: Math.max(order.amount / 100, 1),
               weight: PRODUCT_WEIGHT_GRAMS,
               amount: Math.max(order.quantity, 1),
+              payment: {
+                value: 13500, // TODO: заменить на необходимое
+              },
             },
           ],
-          items4: [],
         },
       ],
     }
