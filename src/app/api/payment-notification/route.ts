@@ -117,7 +117,7 @@ ${
     // Обрабатываем подтверждённые платежи
     if (Status === "CONFIRMED") {
       console.log("✅ Обработка подтверждённого платежа:", OrderId)
-      await andlePaymentNotification({
+      await handlePaymentNotification({
         ...validatedData.data,
         PaymentId: String(validatedData.data.PaymentId),
       })
