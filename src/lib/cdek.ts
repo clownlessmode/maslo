@@ -288,15 +288,11 @@ export async function registerCdekOrder(
 > {
   const token = await getCdekToken()
   try {
-    // Validate input data
-    const validatedData = cdekOrderSchema.parse(data)
-
     // Determine the environment
     const isProduction = false
     const url = isProduction
       ? "https://api.cdek.ru/v2/orders"
       : "https://api.edu.cdek.ru/v2/orders"
-    console.log("validatedData", validatedData)
     // Make the API call
     const response = await fetch(url, {
       method: "POST",
@@ -305,19 +301,20 @@ export async function registerCdekOrder(
         // Include authentication headers if required
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(validatedData),
+      body: JSON.stringify(data),
     })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error("CDEK API error:", {
-        status: response.status,
-        error: errorData,
-        timestamp: new Date().toISOString(),
-      })
-      return { success: false, error: "Failed to register order with CDEK" }
-    }
-
+    //
+    //if (!response.ok) {
+    //  const errorData = await response.json()
+    //  console.error("CDEK API error:", {
+    //    status: response.status,
+    //    error: errorData,
+    //    timestamp: new Date().toISOString(),
+    //  })
+    //  return { success: false, error: "Failed to register order with CDEK" }
+    //}
+    //
     const responseData = (await response.json()) as CdekResponse
 
     return { success: true, order: responseData }

@@ -246,8 +246,7 @@ class ShipmentService {
     const cdekData = {
       recipient: {
         name: order.customerName,
-        phones:
-          phoneNumber.length === 10 ? [{ number2: "+7" + phoneNumber }] : [],
+        phones: [{ number: "+7" + phoneNumber }],
       },
       from_location: {
         city: "Москва",
