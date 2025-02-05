@@ -256,7 +256,7 @@ class ShipmentService {
         city: order.city,
         address: "улица имени Калинина, 189, Краснодар", // TODO: заменить на необходимое
       },
-      tariff_code: 136,
+      tariff_code: 291,
       packages: [
         {
           number: order.id,
