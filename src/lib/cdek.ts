@@ -292,11 +292,11 @@ export async function registerCdekOrder(
     const validatedData = cdekOrderSchema.parse(data)
 
     // Determine the environment
-    const isProduction = process.env.NODE_ENV === "production"
+    const isProduction = false
     const url = isProduction
       ? "https://api.cdek.ru/v2/orders"
       : "https://api.edu.cdek.ru/v2/orders"
-
+    console.log("validatedData", validatedData)
     // Make the API call
     const response = await fetch(url, {
       method: "POST",

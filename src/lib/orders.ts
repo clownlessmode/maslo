@@ -247,7 +247,7 @@ class ShipmentService {
       recipient: {
         name: order.customerName,
         phones:
-          phoneNumber.length === 10 ? [{ number: "+7" + phoneNumber }] : [], // TODO: было number2 )
+          phoneNumber.length === 10 ? [{ number2: "+7" + phoneNumber }] : [],
       },
       from_location: {
         city: "Москва",
@@ -274,6 +274,7 @@ class ShipmentService {
               },
             },
           ],
+          items4: [],
         },
       ],
     }
