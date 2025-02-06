@@ -3,7 +3,7 @@
 import { Order, ShipmentMethod } from "@prisma/client"
 import { z } from "zod"
 import { db } from "@/db"
-import { registerCdekOrder } from "@/lib/cdek"
+import { calculateDeliveryPrice, registerCdekOrder } from "@/lib/cdek"
 import { sendTelegramMessage } from "@/lib/telegram"
 import formSchema from "@/app/checkout/schema"
 
@@ -243,7 +243,8 @@ class ShipmentService {
       processed: phoneNumber,
     })
 
-    //TODO рассчет стоимости доставки
+    const deliveryPrice = calculateDeliveryPrice(Number(order.city))
+
     const fromPvzCode = "LSG6"
     const cdekData = {
       recipient: {
@@ -265,7 +266,7 @@ class ShipmentService {
               weight: PRODUCT_WEIGHT_GRAMS,
               amount: Math.max(order.quantity, 1),
               payment: {
-                value: 13500, // TODO: заменить на необходимое
+                value: deliveryPrice, // TODO: заменить на необходимое
               },
             },
           ],

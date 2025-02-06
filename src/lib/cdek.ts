@@ -233,6 +233,42 @@ export async function getCdekToken(): Promise<string> {
   }
 }
 
+export async function calculateDeliveryPrice(cityCode: number) {
+  const token = await getCdekToken()
+  const url = "https://api.cdek.ru/v2/calculator/tariff"
+  const data = {
+    tariff_code: 136,
+    from_location: {
+      address:
+        "Центральная улица, 65/1, дачный посёлок Лесной Городок, Одинцовский городской округ, Московская область",
+    },
+    to_location: {
+      code: cityCode,
+    },
+    packages: [
+      {
+        weight: 1540,
+      },
+    ],
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+
+    const { total_sum } = await response.json()
+    return Number(total_sum)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export async function getCdekOffices(
   cityCode: number
 ): Promise<

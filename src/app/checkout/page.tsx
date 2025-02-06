@@ -107,11 +107,12 @@ export default function Checkout({
           orderId: order.id,
           tinkoffId: tbankResponse.orderId,
         })
+        console.log(order)
 
         // Только после успешного создания заказа делаем редирект
-        if (order && tbankResponse.url) {
-          router.push(tbankResponse.url)
-        }
+        //if (order && tbankResponse.url) {
+        //  router.push(tbankResponse.url)
+        //}
       } catch (error) {
         console.error("❌ Ошибка при создании заказа:", error)
         await sendTelegramMessage({
