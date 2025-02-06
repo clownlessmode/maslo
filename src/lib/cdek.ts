@@ -198,7 +198,7 @@ interface CdekDeliveryPoint {
 }
 
 export async function getCdekToken(): Promise<string> {
-  const url = "https://api.edu.cdek.ru/v2/oauth/token"
+  const url = "https://api.cdek.ru/v2/oauth/token"
   const params = new URLSearchParams()
   params.set("grant_type", "client_credentials")
   params.set(
@@ -211,12 +211,9 @@ export async function getCdekToken(): Promise<string> {
   )
 
   try {
-    const response = await fetch(
-      `https://api.edu.cdek.ru/v2/oauth/token?grant_type=client_credentials&client_id=wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP&client_secret=RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5`,
-      {
-        method: "POST",
-      }
-    )
+    const response = await fetch(url, {
+      method: "POST",
+    })
 
     if (!response.ok) {
       throw new Error(`Failed to get CDEK token: ${response.statusText}`)
