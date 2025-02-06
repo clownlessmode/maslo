@@ -198,22 +198,13 @@ interface CdekDeliveryPoint {
 }
 
 export async function getCdekToken(): Promise<string> {
-  const url = "https://api.cdek.ru/v2/oauth/token"
-  const params = new URLSearchParams()
-  params.set("grant_type", "client_credentials")
-  params.set(
-    "client_id",
-    process.env.CDEK_CLIENT_ID || "wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP"
-  )
-  params.set(
-    "client_secret",
-    process.env.CDEK_CLIENT_SECRET || "RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5"
-  )
-
   try {
-    const response = await fetch(url, {
-      method: "POST",
-    })
+    const response = await fetch(
+      `https://api.cdek.ru/v2/oauth/token?grant_type=client_credentials&client_id=${process.env.CDEK_CLIENT_ID}&client_secret=${process.env.CDEK_CLIENT_SECRET}`,
+      {
+        method: "POST",
+      }
+    )
 
     if (!response.ok) {
       throw new Error(`Failed to get CDEK token: ${response.statusText}`)
@@ -249,21 +240,17 @@ export async function calculateDeliveryPrice(cityCode: number) {
     ],
   }
 
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
 
-    const { total_sum } = await response.json()
-    return Number(total_sum)
-  } catch (error) {
-    console.error(error)
-  }
+  const { total_sum } = await response.json()
+  return Number(total_sum)
 }
 
 export async function getCdekOffices(
@@ -322,7 +309,7 @@ export async function registerCdekOrder(
   const token = await getCdekToken()
   try {
     // Determine the environment
-    const isProduction = false
+    const isProduction = true
     const url = isProduction
       ? "https://api.cdek.ru/v2/orders"
       : "https://api.edu.cdek.ru/v2/orders"
