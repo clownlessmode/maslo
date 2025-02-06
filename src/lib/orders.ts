@@ -266,7 +266,7 @@ class ShipmentService {
               weight: PRODUCT_WEIGHT_GRAMS,
               amount: Math.max(order.quantity, 1),
               payment: {
-                value: deliveryPrice, // TODO: заменить на необходимое
+                value: 200,
               },
             },
           ],
