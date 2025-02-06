@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { fetchCities, City } from "@/lib/cities"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 
 import { AutoComplete } from "@/components/ui/autocomplete"
 import {

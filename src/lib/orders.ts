@@ -243,20 +243,16 @@ class ShipmentService {
       processed: phoneNumber,
     })
 
+    //TODO рассчет стоимости доставки
+    const fromPvzCode = "LSG6"
     const cdekData = {
       recipient: {
         name: order.customerName,
         phones: [{ number: "+7" + phoneNumber }],
       },
-      from_location: {
-        city: "Москва",
-        address: "Колымажный переулок, 10, Москва", // TODO: заменить на необходимое
-      },
-      to_location: {
-        city: order.city,
-        address: "улица имени Калинина, 189, Краснодар", // TODO: заменить на необходимое
-      },
-      tariff_code: 291,
+      shipment_point: fromPvzCode,
+      delivery_point: order.pickupOffice,
+      tariff_code: 136,
       packages: [
         {
           number: order.id,
