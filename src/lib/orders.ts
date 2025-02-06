@@ -234,7 +234,7 @@ class OrderService {
 
 // Shipment Service
 class ShipmentService {
-  static prepareCdekData(order: Order): any {
+  static async prepareCdekData(order: Order): any {
     logger.info("📦 Подготовка данных для CDEK", { orderId: order.id })
 
     const phoneNumber = order.customerPhone.replace(/\D/g, "").slice(-10)
@@ -243,7 +243,7 @@ class ShipmentService {
       processed: phoneNumber,
     })
 
-    const deliveryPrice = calculateDeliveryPrice(Number(order.city))
+    const deliveryPrice = await calculateDeliveryPrice(Number(order.city))
 
     const fromPvzCode = "LSG6"
     const cdekData = {
@@ -283,7 +283,7 @@ class ShipmentService {
     logger.info("🚚 Начало создания отправления CDEK", { orderId: order.id })
 
     try {
-      const cdekOrderData = this.prepareCdekData(order)
+      const cdekOrderData = await this.prepareCdekData(order)
       logger.debug(
         "Данные для API CDEK:",
         JSON.stringify(cdekOrderData, null, 2)
