@@ -1,7 +1,7 @@
 import footer from "@/data/footer"
 import Link from "next/link"
 import Image from "next/image"
-import logo from "../../../public/logo.png"
+import logo from "../../../public/logo.svg"
 
 import {
   VisualElementFooterText,
@@ -13,7 +13,7 @@ const Footer = () => {
   const getData = footer()
 
   return (
-    <footer className="px-5 sm:px-10 pt-4 lg:pt-[50px] relative flex flex-col bg-background-100 gap-y-[54px]">
+    <footer className="px-5 sm:px-10 pt-4 lg:pt-[50px] relative flex flex-col bg-background-100 gap-y-[54px] z-[999999999]">
       <svg
         className="absolute right-0 top-0 w-[96px] lg:w-[164px] h-auto"
         width="164"

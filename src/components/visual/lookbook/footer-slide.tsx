@@ -114,13 +114,13 @@ const FooterSlider = () => {
             }}
           />
           <motion.div
-            className="absolute bottom-0 left-0 p-[50px] w-full h-1/3 bg-brand flex items-center justify-center z-[3]"
+            className="absolute bottom-0 left-0 p-[50px] w-full h-1/3 bg-brand flex items-center justify-center z-[3] "
             style={{ y: slideY }}
           >
             <svg
               width="535"
               height="681"
-              className="w-[300px] h-auto"
+              className="w-[200px] h-auto"
               viewBox="0 0 535 681"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"

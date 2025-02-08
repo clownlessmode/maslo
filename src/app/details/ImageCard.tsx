@@ -31,8 +31,10 @@ const ImageCard: React.FC<ImageCardProps> = ({
     "bg-cover bg-top transition-all duration-300",
     src,
     reverse
-      ? "w-full h-full group-hover:w-4/5 group-hover:h-4/5 rounded-[20px]"
-      : "w-4/5 h-4/5 group-hover:w-full group-hover:h-full rounded-[20px]"
+      ? "w-full h-full group-hover:w-4/5 group-hover:h-4/5 " +
+          (size === "sm" ? "rounded-[20px]" : "rounded-[40px]")
+      : "w-4/5 h-4/5 group-hover:w-full group-hover:h-full " +
+          (size === "sm" ? "rounded-[20px]" : "rounded-[40px]")
   )
 
   // Desktop version

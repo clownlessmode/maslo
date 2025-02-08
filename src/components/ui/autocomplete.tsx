@@ -107,8 +107,8 @@ export const AutoComplete = ({
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
-            "flex h-[69px] w-full text-2xl uppercase rounded-[20px] bg-background-100 px-[50px] font-normal py-5",
-            "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-zinc-950",
+            "flex h-[50px] sm:h-[69px] w-full text-lg sm:text-2xl uppercase rounded-[15px] sm:rounded-[20px] bg-background-100 px-[20px] sm:px-[50px] font-normal py-3 sm:py-5",
+            "file:border-0 file:bg-transparent file:text-xs sm:file:text-sm file:font-medium file:text-zinc-950",
             "placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#767676]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}

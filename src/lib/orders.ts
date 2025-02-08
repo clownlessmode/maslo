@@ -113,11 +113,7 @@ Email: ${formData.email}
       trackingNumber,
     })
     await sendTelegramMessage({
-      message: `📦 Создано отправление CDEK!\n\nЗаказ: ${orderId}\nТрек-номер: ${trackingNumber}\n\nДетали заказа: ${JSON.stringify(
-        result.order,
-        null,
-        2
-      )}`,
+      message: `📦 Создано отправление CDEK!`,
     })
   }
 

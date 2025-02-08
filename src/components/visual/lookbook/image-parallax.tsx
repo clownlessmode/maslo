@@ -67,25 +67,25 @@ const ImageParallax = () => {
     img4: {
       src: "/lookbook/parallax/6.jpg",
       className:
-        "w-[240px] sm:w-[305px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[460px] sm:h-[355px] md:h-[458px] lg:h-[458px] xl:h-[509px] 2xl:h-[585px]",
+        "w-[240px] sm:w-[305px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[460px] sm:h-[426px] md:h-[550px] lg:h-[550px] xl:h-[611px] 2xl:h-[702px]",
       position: { left: "2.5%", sm: "5%", xl: "40px" },
       zIndex: 3,
     },
     img5: {
       src: "/lookbook/parallax/3.jpg",
       className:
-        "w-[240px] sm:w-[305px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[452px] sm:h-[355px] md:h-[458px] lg:h-[458px] xl:h-[509px] 2xl:h-[577px]",
-      position: { right: "10%", sm: "12%", xl: "137px" },
+        "w-[240px] sm:w-[270px] md:w-[360px] lg:w-[360px] xl:w-[400px] 2xl:w-[452px] sm:h-[375px] md:h-[458px] lg:h-[458px] xl:h-[509px] 2xl:h-[577px]",
+      position: { right: "10px", sm: "10%", xl: "137px" },
       zIndex: 2,
     },
   }
 
   return (
     <Container
-      className="-mt-[70vh] relative w-full h-[600vh]"
+      className="-mt-[70vh] relative w-full h-[600vh] "
       ref={containerRef}
     >
-      <div className="fixed z-10 top-0 left-0 w-full h-screen flex items-center justify-center">
+      <div className="sticky z-10 top-0 left-0 w-full h-screen flex items-center justify-center">
         <motion.div
           style={{ opacity: firstTextOpacity }}
           className="absolute w-full"

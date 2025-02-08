@@ -188,8 +188,8 @@ export default function Checkout({
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col space-y-[15px]">
-                        <FormLabel className="uppercase pl-[50px]">
+                      <FormItem className="flex flex-col space-y-[10px]">
+                        <FormLabel className="uppercase md:pl-[50px] pl-[20px]">
                           фио получателя
                         </FormLabel>
                         <FormControl>
@@ -205,8 +205,8 @@ export default function Checkout({
                     control={form.control}
                     name="phone"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col space-y-[15px]">
-                        <FormLabel className="uppercase pl-[50px]">
+                      <FormItem className="flex flex-col space-y-[10px]">
+                        <FormLabel className="uppercase md:pl-[50px] pl-[20px]">
                           Номер телефона
                         </FormLabel>
                         <FormControl>
@@ -219,8 +219,8 @@ export default function Checkout({
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col space-y-[15px]">
-                        <FormLabel className="uppercase pl-[50px]">
+                      <FormItem className="flex flex-col space-y-[10px]">
+                        <FormLabel className="uppercase md:pl-[50px] pl-[20px]">
                           email
                         </FormLabel>
                         <FormControl>
@@ -235,15 +235,15 @@ export default function Checkout({
                   />
                 </div>
                 <div className="flex flex-col gap-y-[30px]">
-                  <span className="text-[32px] font-semibold pl-[50px] uppercase leading-[38px]">
+                  <span className="text-[32px] font-semibold uppercase leading-[38px]">
                     Доставка
                   </span>
                   <FormField
                     control={form.control}
                     name="city"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col space-y-[15px]">
-                        <FormLabel className="uppercase pl-[50px]">
+                      <FormItem className="flex flex-col space-y-[10px]">
+                        <FormLabel className="uppercase md:pl-[50px] pl-[20px]">
                           город
                         </FormLabel>
                         <FormControl>
@@ -266,7 +266,7 @@ export default function Checkout({
                     control={form.control}
                     name="shipment"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col space-y-[15px]">
+                      <FormItem className="flex flex-col space-y-[10px]">
                         <FormControl>
                           <RadioGroup
                             onValueChange={(value) => {
@@ -325,8 +325,8 @@ export default function Checkout({
                     control={form.control}
                     name="pickup_office"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col space-y-[15px]">
-                        <FormLabel className="uppercase pl-[50px]">
+                      <FormItem className="flex flex-col space-y-[10px]">
+                        <FormLabel className="uppercase md:pl-[50px] pl-[20px]">
                           {selectedShipment === "pochta"
                             ? "адрес доставки"
                             : "пункт получения"}
@@ -367,12 +367,12 @@ export default function Checkout({
                                 )}
                               />
 
-                              <div className="flex gap-4">
+                              <div className="md:flex gap-4 grid sm:grid-cols-2 grid-cols-1">
                                 <FormField
                                   control={form.control}
                                   name="house"
                                   render={({ field }) => (
-                                    <FormItem className="w-1/3">
+                                    <FormItem className="md:w-1/3">
                                       <FormControl>
                                         <Input
                                           placeholder="Дом"
@@ -388,7 +388,7 @@ export default function Checkout({
                                   control={form.control}
                                   name="apartment"
                                   render={({ field }) => (
-                                    <FormItem className="w-1/3">
+                                    <FormItem className="md:w-1/3">
                                       <FormControl>
                                         <Input
                                           placeholder="Квартира"
@@ -404,7 +404,7 @@ export default function Checkout({
                                   control={form.control}
                                   name="postalCode"
                                   render={({ field }) => (
-                                    <FormItem className="w-1/3">
+                                    <FormItem className="md:w-1/3 col-span-2">
                                       <FormControl>
                                         <Input
                                           disabled={!selectedCity}

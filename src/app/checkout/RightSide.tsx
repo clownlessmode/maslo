@@ -44,9 +44,7 @@ const RightSide = ({
   }
 
   return (
-    <div className="flex w-full h-full flex-col rounded-[20px] max-h-[1104px] relative overflow-hidden ">
-      {/* <div className="flex items-center justify-center bg-[#171717] h-full"> */}
-
+    <div className="flex w-full h-full max-h-[88vh] flex-col rounded-[20px]  relative overflow-hidden ">
       <video
         autoPlay
         loop
@@ -56,10 +54,9 @@ const RightSide = ({
         className="w-full h-full object-cover min-w-[300px] min-h-[300px]"
       >
         <source src="/assets/loops.mp4" type="video/mp4" />
-        {/* <source src="/assets/loops.webm" type="video/webm" /> */}
       </video>
 
-      <div className="h-50% p-[50px] bg-background-100 rounded-b-[20px] flex flex-col">
+      <div className="h-50% md:p-[50px] sm:p-[20px] p-[15px] bg-background-100 rounded-b-[20px] flex flex-col">
         <p className="md:text-[48px] md:leading-[58px] text-[32px] leading-[38px] font-semibold flex flex-col gap-0">
           <span className="md:text-[20px] md:leading-[24px] text-[16px] leading-[20px] font-normal">
             Down Jacket
