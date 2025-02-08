@@ -103,13 +103,21 @@ Email: ${formData.email}
     })
   }
 
-  static async sendShipmentCreated(orderId: string, trackingNumber: string) {
+  static async sendShipmentCreated(
+    orderId: string,
+    trackingNumber: string,
+    result: any
+  ) {
     logger.info("📨 Отправка уведомления о созданной доставке", {
       orderId,
       trackingNumber,
     })
     await sendTelegramMessage({
-      message: `📦 Создано отправление CDEK!\n\nЗаказ: ${orderId}\nТрек-номер: ${trackingNumber}`,
+      message: `📦 Создано отправление CDEK!\n\nЗаказ: ${orderId}\nТрек-номер: ${trackingNumber}\n\nДетали заказа: ${JSON.stringify(
+        result.order,
+        null,
+        2
+      )}`,
     })
   }
 
@@ -234,7 +242,7 @@ class OrderService {
 
 // Shipment Service
 class ShipmentService {
-  static async prepareCdekData(order: Order): any {
+  static async prepareCdekData(order: Order) {
     logger.info("📦 Подготовка данных для CDEK", { orderId: order.id })
 
     const phoneNumber = order.customerPhone.replace(/\D/g, "").slice(-10)
@@ -318,7 +326,8 @@ class ShipmentService {
 
       await NotificationService.sendShipmentCreated(
         order.id,
-        result.order.order_id
+        result.order.order_id,
+        result
       )
 
       return result.order
