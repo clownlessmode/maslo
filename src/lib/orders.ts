@@ -290,6 +290,7 @@ class ShipmentService {
       )
 
       const result = await registerCdekOrder(cdekOrderData)
+
       logger.debug("Ответ от API CDEK:", result)
 
       if (!result.success) {

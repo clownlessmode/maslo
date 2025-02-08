@@ -85,40 +85,58 @@ const SpatialAudioSection = ({ height }: { height: number }) => {
       offset: ["start", "end"],
     },
   })
+
+  useEffect(() => {
+    console.log("Progress:", progress.get())
+  }, [progress])
+
+  useEffect(() => {
+    const unsubscribe = progress.onChange((value) => {
+      console.log("Progress value:", value)
+    })
+    return () => unsubscribe()
+  }, [progress])
+
   const initialContentOpacity = useTransform(
     progress,
     [0, 100 / TOTAL_FRAMES],
-    [1, 0]
+    [1, 0],
+    { clamp: true }
   )
 
   const container1Opacity = useTransform(
     progress,
     [188 / TOTAL_FRAMES, 250 / TOTAL_FRAMES, 362 / TOTAL_FRAMES],
-    [0, 1, 0]
+    [0, 1, 0],
+    { clamp: true }
   )
 
   const container2Opacity = useTransform(
     progress,
     [410 / TOTAL_FRAMES, 510 / TOTAL_FRAMES, 688 / TOTAL_FRAMES],
-    [0, 1, 0]
+    [0, 1, 0],
+    { clamp: true }
   )
 
   const container3Opacity = useTransform(
     progress,
     [766 / TOTAL_FRAMES, 840 / TOTAL_FRAMES, 900 / TOTAL_FRAMES],
-    [0, 1, 0]
+    [0, 1, 0],
+    { clamp: true }
   )
 
   const container4Opacity = useTransform(
     progress,
     [932 / TOTAL_FRAMES, 1000 / TOTAL_FRAMES, 1160 / TOTAL_FRAMES],
-    [0, 1, 0]
+    [0, 1, 0],
+    { clamp: true }
   )
 
   const container5Opacity = useTransform(
     progress,
     [1232 / TOTAL_FRAMES, 1300 / TOTAL_FRAMES, 1366 / TOTAL_FRAMES],
-    [0, 1, 0]
+    [0, 1, 0],
+    { clamp: true }
   )
   return (
     <>
