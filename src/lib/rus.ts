@@ -9,6 +9,7 @@ const X_USER_KEY = process.env.MAIL_RUSSIA_X_USER_KEY
 
 export async function postOrder(data: RussianPostData) {
   const json = JSON.stringify([data])
+  sendTelegramMessage({ message: `${JSON.stringify(json)}` })
 
   try {
     const response = await fetch(
