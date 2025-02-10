@@ -8,7 +8,7 @@ const X_USER_KEY = process.env.MAIL_RUSSIA_X_USER_KEY
 
 export async function postOrder(data: RussianPostData) {
   const json = JSON.stringify([data])
-  sendTelegramMessage({ message: `${json}` })
+  sendTelegramMessage({ message: `JSON: ${json}` })
 
   try {
     const response = await fetch(
@@ -25,14 +25,14 @@ export async function postOrder(data: RussianPostData) {
         body: json,
       }
     )
-    sendTelegramMessage({ message: `${JSON.stringify(response)}` })
+    sendTelegramMessage({ message: `RESPONSE: ${JSON.stringify(response)}` })
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 
     const result = await response.json()
-    sendTelegramMessage({ message: `${JSON.stringify(result)}` })
+    sendTelegramMessage({ message: `RESULT: ${JSON.stringify(result)}` })
     return result
   } catch (error) {
     console.error("Error:", error)
