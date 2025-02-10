@@ -1,31 +1,13 @@
 // rus.ts
 "use server"
 
+import { RussianPostData } from "./orders"
 import { sendTelegramMessage } from "./telegram"
 
 const AUTH_KEY = process.env.MAIL_RUSSIA_AUTHORIZATION
 const X_USER_KEY = process.env.MAIL_RUSSIA_X_USER_KEY
 
-interface OrderData {
-  "address-type-to": string
-  "given-name": string
-  "house-to": string
-  "index-to": number
-  "mail-category": string
-  "mail-direct": number
-  "mail-type": string
-  mass: number
-  "middle-name": string
-  "order-num": string
-  "place-to": string
-  "region-to": string
-  "street-to": string
-  surname: string
-  "tel-address": number
-  "transport-type": string
-}
-
-export async function postOrder(data: OrderData) {
+export async function postOrder(data: RussianPostData) {
   const json = JSON.stringify([data])
 
   try {

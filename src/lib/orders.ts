@@ -214,7 +214,7 @@ class OrderService {
     }
   }
 }
-interface RussianPostData {
+export interface RussianPostData {
   "address-type-to": string
   "given-name": string
   "house-to": string
@@ -229,8 +229,9 @@ interface RussianPostData {
   "region-to": string
   "street-to": string
   surname: string
-  "tel-address": number
+  "tel-address": string
   "transport-type": string
+  "postoffice-code": number
 }
 // Shipment Service
 class ShipmentService {
@@ -407,23 +408,22 @@ export async function handlePaymentNotification(data: unknown) {
 
         case ShipmentMethod.POCHTA:
           const postData: RussianPostData = {
-            "address-type-to": "PO_BOX",
+            "address-type-to": "DEFAULT",
             "given-name": updatedOrder.customerName.split(" ")[0],
-            "house-to": "123", // Need to parse from address
-            "index-to": 650066, // Need postal code
+            "house-to": "123",
+            "index-to": 650066,
             "mail-category": "ORDINARY",
-            "mail-direct": 643, // Russia
+            "mail-direct": 643,
             "mail-type": "POSTAL_PARCEL",
             mass: PRODUCT_WEIGHT_GRAMS,
-            "middle-name": "среднее имя", // Need middle name
+            "middle-name": "среднее имя",
             "order-num": updatedOrder.id,
+            "postoffice-code": 140007,
             "place-to": updatedOrder.city,
-            "region-to": "Кемеровская область", // Need region
-            "street-to": "Волгоградская", // Need street
+            "region-to": "Кемеровская область",
+            "street-to": "Волгоградская",
             surname: updatedOrder.customerName.split(" ")[1] || "",
-            "tel-address": parseInt(
-              updatedOrder.customerPhone.replace(/\D/g, "")
-            ),
+            "tel-address": updatedOrder.customerPhone.replace(/\D/g, ""),
             "transport-type": "SURFACE",
           }
 
