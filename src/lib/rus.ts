@@ -14,11 +14,6 @@ export async function postOrder(data: RussianPostData) {
       message: `Starting request with JSON: ${json}`,
     })
 
-    // Проверка токенов
-    if (!AUTH_KEY || !X_USER_KEY) {
-      throw new Error("Authorization tokens are missing")
-    }
-
     const headers = {
       Authorization: `AccessToken ${AUTH_KEY}`,
       "X-User-Authorization": `Basic ${X_USER_KEY}`,
@@ -31,41 +26,52 @@ export async function postOrder(data: RussianPostData) {
       message: `Headers prepared: ${JSON.stringify(headers)}`,
     })
 
-    const response = await fetch(
-      "https://otpravka-api.pochta.ru/1.0/user/backlog",
-      {
-        method: "PUT",
-        headers,
-        body: json,
-      }
-    )
-    await sendTelegramMessage({
-      message: `Responsebody: ${response}`,
-    })
-    const responseText = await response.text()
-    await sendTelegramMessage({
-      message: `Response status: ${response.status}, body: ${responseText}`,
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `HTTP error! status: ${response.status}, response: ${responseText}`
+    try {
+      await sendTelegramMessage({ message: "Starting fetch..." })
+      const response = await fetch(
+        "https://otpravka-api.pochta.ru/1.0/user/backlog",
+        {
+          method: "PUT",
+          headers,
+          body: json,
+        }
       )
+      await sendTelegramMessage({
+        message: `Fetch completed, status: ${response.status}`,
+      })
+
+      const responseText = await response.text()
+      await sendTelegramMessage({
+        message: `Response body: ${responseText}`,
+      })
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP error! status: ${response.status}, response: ${responseText}`
+        )
+      }
+
+      const result = JSON.parse(responseText)
+      await sendTelegramMessage({
+        message: `Success result: ${JSON.stringify(result)}`,
+      })
+      return result
+    } catch (fetchError) {
+      await sendTelegramMessage({
+        message: `Fetch error: ${
+          fetchError instanceof Error
+            ? fetchError.message
+            : "Unknown fetch error"
+        }`,
+      })
+      throw fetchError
     }
-
-    const result = JSON.parse(responseText)
-    await sendTelegramMessage({
-      message: `Success result: ${JSON.stringify(result)}`,
-    })
-    return result
   } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? `${error.name}: ${error.message}`
-        : "Unknown error occurred"
-
-    await sendTelegramMessage({ message: `ERROR: ${errorMessage}` })
-    console.error("Error details:", error)
+    await sendTelegramMessage({
+      message: `General error: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
+    })
     throw error
   }
 }
