@@ -39,7 +39,9 @@ export async function postOrder(data: RussianPostData) {
         body: json,
       }
     )
-
+    await sendTelegramMessage({
+      message: `Responsebody: ${response}`,
+    })
     const responseText = await response.text()
     await sendTelegramMessage({
       message: `Response status: ${response.status}, body: ${responseText}`,
