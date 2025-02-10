@@ -235,6 +235,43 @@ export interface RussianPostData {
 }
 // Shipment Service
 class ShipmentService {
+  static async preparePostData(order: Order) {
+    logger.info("📦 Подготовка данных для Почты России", {
+      orderId: order.id,
+    })
+
+    const phoneNumber = order.customerPhone.replace(/\D/g, "")
+    const [firstName, lastName = ""] = order.customerName.split(" ")
+
+    logger.debug("Обработанный номер телефона", {
+      original: order.customerPhone,
+      processed: phoneNumber,
+    })
+
+    const postData: RussianPostData = {
+      "address-type-to": "DEFAULT",
+      "given-name": firstName,
+      "house-to": "123", // Требуется уточнение адреса
+      "index-to": 650066, // Требуется уточнение индекса
+      "mail-category": "ORDINARY",
+      "mail-direct": 643,
+      "mail-type": "POSTAL_PARCEL",
+      mass: PRODUCT_WEIGHT_GRAMS,
+      "middle-name": "", // Требуется уточнение отчества
+      "order-num": order.id,
+      "place-to": order.city,
+      "postoffice-code": 140007,
+      "region-to": "Кемеровская область", // Требуется определение региона по городу
+      "street-to": "Волгоградская", // Требуется уточнение улицы
+      surname: lastName,
+      "tel-address": phoneNumber,
+      "transport-type": "SURFACE",
+    }
+
+    logger.debug("Подготовленные данные для Почты России", postData)
+    return postData
+  }
+
   static async prepareCdekData(order: Order) {
     logger.info("📦 Подготовка данных для CDEK", { orderId: order.id })
 
@@ -407,25 +444,7 @@ export async function handlePaymentNotification(data: unknown) {
           return await ShipmentService.createShipmentСDEK(updatedOrder)
 
         case ShipmentMethod.POCHTA:
-          const postData: RussianPostData = {
-            "address-type-to": "DEFAULT",
-            "given-name": updatedOrder.customerName.split(" ")[0],
-            "house-to": "123",
-            "index-to": 650066,
-            "mail-category": "ORDINARY",
-            "mail-direct": 643,
-            "mail-type": "POSTAL_PARCEL",
-            mass: PRODUCT_WEIGHT_GRAMS,
-            "middle-name": "среднее имя",
-            "order-num": updatedOrder.id,
-            "postoffice-code": 140007,
-            "place-to": updatedOrder.city,
-            "region-to": "Кемеровская область",
-            "street-to": "Волгоградская",
-            surname: updatedOrder.customerName.split(" ")[1] || "",
-            "tel-address": updatedOrder.customerPhone.replace(/\D/g, ""),
-            "transport-type": "SURFACE",
-          }
+          const postData = await ShipmentService.preparePostData(updatedOrder)
 
           const result = await postOrder(postData)
 
