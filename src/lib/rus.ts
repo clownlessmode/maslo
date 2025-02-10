@@ -35,6 +35,8 @@ export async function postOrder(data: RussianPostData) {
     sendTelegramMessage({ message: `RESULT: ${JSON.stringify(result)}` })
     return result
   } catch (error) {
+    sendTelegramMessage({ message: `ERRRORKA: ${JSON.stringify(error)}` })
+
     console.error("Error:", error)
     throw error
   }
