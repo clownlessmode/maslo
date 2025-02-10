@@ -1,4 +1,4 @@
-// "use server"
+"use server"
 
 // import { Order, ShipmentMethod } from "@prisma/client"
 // import { z } from "zod"
@@ -482,8 +482,6 @@ export interface RussianPostData {
   "transport-type": string
   "postoffice-code": number
 }
-
-;("use server")
 
 import { Order, ShipmentMethod } from "@prisma/client"
 import { z } from "zod"

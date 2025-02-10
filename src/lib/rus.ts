@@ -1,4 +1,3 @@
-// rus.ts
 "use server"
 
 import { RussianPostData } from "./orders"
