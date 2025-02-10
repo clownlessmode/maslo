@@ -25,6 +25,7 @@ export async function postOrder(data: RussianPostData) {
         body: json,
       }
     )
+    sendTelegramMessage({ message: `${JSON.stringify(response)}` })
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
