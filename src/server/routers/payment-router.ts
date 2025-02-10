@@ -8,6 +8,7 @@ const createSessionSchema = z.object({
   email: z.string().email(),
   phone: z.string(),
   quantity: z.number().min(1).max(5),
+  promocode: z.string().optional(),
 })
 
 export const paymentRouter = router({
@@ -18,6 +19,7 @@ export const paymentRouter = router({
         Email: input.email,
         Phone: input.phone,
         Quantity: input.quantity,
+        promocode: input.promocode,
       })
 
       return c.json(session)

@@ -7,6 +7,7 @@ const paymentDataSchema = z.object({
   Email: z.string().email(),
   Phone: z.string(),
   Quantity: z.number().min(1).max(5),
+  promocode: z.string().optional(),
 })
 
 interface TBankResponse {
@@ -37,7 +38,10 @@ export async function createTBankSession(
 
     // Recalculate price server-side to prevent manipulation
     console.log("💰 Расчет стоимости заказа...")
-    const priceResult = await calculatePrice(validatedData.Quantity)
+    const priceResult = await calculatePrice(
+      validatedData.Quantity,
+      validatedData.promocode
+    )
     if (!priceResult.success || !priceResult.total || !priceResult.quantity) {
       throw new Error("Invalid price calculation")
     }

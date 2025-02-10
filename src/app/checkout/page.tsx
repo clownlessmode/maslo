@@ -29,7 +29,6 @@ import { sendTelegramMessage } from "@/lib/telegram"
 import { createOrder } from "@/lib/orders"
 import formSchema from "./schema"
 import RightSide from "./RightSide"
-import { off } from "node:process"
 export default function Checkout({
   searchParams,
 }: {
@@ -56,6 +55,7 @@ export default function Checkout({
       apartment: "",
       postalCode: "",
       pickup_office: "",
+      promocode: "",
     },
   })
 
@@ -64,11 +64,13 @@ export default function Checkout({
       email: string
       phone: string
       quantity: number
+      promocode?: string
     }) => {
       const res = await client.payment.createTBankSession.$post({
         email: data.email,
         phone: data.phone,
         quantity: data.quantity,
+        promocode: data.promocode,
       })
       return (await res.json()) as {
         success: boolean
@@ -88,6 +90,7 @@ export default function Checkout({
           email: data.email,
           phone: data.phone,
           quantity: quantity,
+          promocode: data.promocode,
         })
 
         console.log("📦 Ответ от TBank:", tbankResponse)
@@ -227,6 +230,24 @@ export default function Checkout({
                           <Input
                             type="email"
                             placeholder="example@site.com"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="promocode"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col space-y-[10px]">
+                        <FormLabel className="uppercase md:pl-[50px] pl-[20px]">
+                          ПРОМОКОД
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Промокод"
                             {...field}
                           />
                         </FormControl>

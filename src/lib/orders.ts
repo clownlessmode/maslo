@@ -6,34 +6,13 @@ import { db } from "@/db"
 import { calculateDeliveryPrice, registerCdekOrder } from "@/lib/cdek"
 import { sendTelegramMessage } from "@/lib/telegram"
 import formSchema from "@/app/checkout/schema"
+import { postOrder } from "./rus"
 
 // Types
 type CreateOrderData = z.infer<typeof formSchema> & {
   quantity: number
   amount: number
   orderId: string
-}
-
-type CdekShipmentData = {
-  recipient: {
-    name: string
-    phones: { number2: string }[]
-  }
-  to_location: {
-    city: string
-  }
-  packages: {
-    number: string
-    weight: number
-    items: {
-      name: string
-      ware_key: string
-      cost: number
-      weight: number
-      amount: number
-    }[]
-    tariff_code: number
-  }[]
 }
 
 // Schemas
@@ -235,7 +214,24 @@ class OrderService {
     }
   }
 }
-
+interface RussianPostData {
+  "address-type-to": string
+  "given-name": string
+  "house-to": string
+  "index-to": number
+  "mail-category": string
+  "mail-direct": number
+  "mail-type": string
+  mass: number
+  "middle-name": string
+  "order-num": string
+  "place-to": string
+  "region-to": string
+  "street-to": string
+  surname: string
+  "tel-address": number
+  "transport-type": string
+}
 // Shipment Service
 class ShipmentService {
   static async prepareCdekData(order: Order) {
@@ -283,8 +279,11 @@ class ShipmentService {
     return cdekData
   }
 
-  static async createShipment(order: Order) {
-    logger.info("🚚 Начало создания отправления CDEK", { orderId: order.id })
+  static async createShipmentСDEK(order: Order) {
+    logger.info("🚚 Создание отправления", {
+      orderId: order.id,
+      method: order.shipmentMethod,
+    })
 
     try {
       const cdekOrderData = await this.prepareCdekData(order)
@@ -307,7 +306,7 @@ class ShipmentService {
         throw new Error(`Failed to create CDEK shipment: ${result.error}`)
       }
 
-      const updatedOrder = await db.order.update({
+      await db.order.update({
         where: { id: order.id },
         data: {
           cdekOrderId: result.order.order_id,
@@ -392,13 +391,66 @@ export async function handlePaymentNotification(data: unknown) {
       notification.PaymentId
     )
 
-    logger.info("🚚 Создание отправления", { orderId: updatedOrder.id })
-    await ShipmentService.createShipment(updatedOrder)
-
-    logger.info("⬅️ Выход из обработчика платежного уведомления", {
-      orderId: notification.OrderId,
-      status: "success",
+    logger.info("🚚 Создание отправления", {
+      orderId: updatedOrder.id,
+      method: updatedOrder.shipmentMethod,
     })
+    try {
+      switch (updatedOrder.shipmentMethod) {
+        case ShipmentMethod.SELFPICKUP:
+          return await sendTelegramMessage({
+            message: `САМОВЫВОЗ: ${JSON.stringify(updatedOrder)}`,
+          })
+
+        case ShipmentMethod.CDEK:
+          return await ShipmentService.createShipmentСDEK(updatedOrder)
+
+        case ShipmentMethod.POCHTA:
+          const postData: RussianPostData = {
+            "address-type-to": "PO_BOX",
+            "given-name": updatedOrder.customerName.split(" ")[0],
+            "house-to": "123", // Need to parse from address
+            "index-to": 650066, // Need postal code
+            "mail-category": "ORDINARY",
+            "mail-direct": 643, // Russia
+            "mail-type": "POSTAL_PARCEL",
+            mass: PRODUCT_WEIGHT_GRAMS,
+            "middle-name": "среднее имя", // Need middle name
+            "order-num": updatedOrder.id,
+            "place-to": updatedOrder.city,
+            "region-to": "Кемеровская область", // Need region
+            "street-to": "Волгоградская", // Need street
+            surname: updatedOrder.customerName.split(" ")[1] || "",
+            "tel-address": parseInt(
+              updatedOrder.customerPhone.replace(/\D/g, "")
+            ),
+            "transport-type": "SURFACE",
+          }
+
+          const result = await postOrder(postData)
+
+          await db.order.update({
+            where: { id: updatedOrder.id },
+            data: {
+              status: "SHIPPING",
+            },
+          })
+
+          return result
+
+        default:
+          throw new Error(
+            `Unsupported shipping method: ${updatedOrder.shipmentMethod}`
+          )
+      }
+    } catch (error) {
+      logger.error("❌ Ошибка создания отправления", {
+        orderId: updatedOrder.id,
+        method: updatedOrder.shipmentMethod,
+        error: error instanceof Error ? error.message : "Unknown error",
+      })
+      throw error
+    }
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Неизвестная ошибка"

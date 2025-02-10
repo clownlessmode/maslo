@@ -15,6 +15,7 @@ const formSchema = z
         },
         { message: "Некорректный номер телефона" }
       ),
+    promocode: z.string().optional(),
     city: z.string().min(1, "Город обязателен к заполнению"),
     shipment: z.enum(["pochta", "cdek", "selfpickup"], {
       required_error:
