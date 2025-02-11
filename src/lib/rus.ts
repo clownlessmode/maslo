@@ -31,7 +31,27 @@ export async function postOrder(data: RussianPostData) {
 
       const response = await axios.put(
         "https://otpravka-api.pochta.ru/1.0/user/backlog",
-        json,
+        [
+          {
+            "address-type-to": "DEFAULT",
+            "given-name": "Коваленко",
+            "house-to": "123",
+            "index-to": 650066,
+            "mail-category": "ORDINARY",
+            "mail-direct": 643,
+            "mail-type": "POSTAL_PARCEL",
+            mass: 1540,
+            "middle-name": "",
+            "order-num": "ecli-1739206953494-jids",
+            "place-to": "272",
+            "postoffice-code": 140007,
+            "region-to": "Кемеровская область",
+            "street-to": "Волгоградская",
+            surname: "Родион",
+            "tel-address": "79609177131",
+            "transport-type": "SURFACE",
+          },
+        ],
         { headers }
       )
 
