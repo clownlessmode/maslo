@@ -7,29 +7,6 @@ import axios from "axios"
 const AUTH_KEY = process.env.MAIL_RUSSIA_AUTHORIZATION
 const X_USER_KEY = process.env.MAIL_RUSSIA_X_USER_KEY
 
-// Add timeout wrapper for fetch
-const fetchWithTimeout = async (
-  resource: string,
-  options: RequestInit & { timeout?: number } = {}
-) => {
-  const { timeout = 30000, ...fetchOptions } = options
-
-  const controller = new AbortController()
-  const id = setTimeout(() => controller.abort(), timeout)
-
-  try {
-    const response = await fetch(resource, {
-      ...fetchOptions,
-      signal: controller.signal,
-    })
-    clearTimeout(id)
-    return response
-  } catch (error) {
-    clearTimeout(id)
-    throw error
-  }
-}
-
 export async function postOrder(data: RussianPostData) {
   const json = JSON.stringify([data])
 
