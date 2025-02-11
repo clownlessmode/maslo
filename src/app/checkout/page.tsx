@@ -54,6 +54,7 @@ export default function Checkout({
       house: "",
       apartment: "",
       postalCode: "",
+      oblast: "",
       pickup_office: "",
       promocode: "",
     },
@@ -294,6 +295,7 @@ export default function Checkout({
                               field.onChange(value)
                               // Очищаем поля адреса при смене способа доставки
                               if (value !== "pochta") {
+                                form.setValue("oblast", "")
                                 form.setValue("street", "")
                                 form.setValue("house", "")
                                 form.setValue("apartment", "")
@@ -372,6 +374,21 @@ export default function Checkout({
                             />
                           ) : (
                             <div className="flex flex-col gap-4">
+                              <FormField
+                                control={form.control}
+                                name="oblast"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Область"
+                                        {...field}
+                                        disabled={!selectedCity}
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
                               <FormField
                                 control={form.control}
                                 name="street"

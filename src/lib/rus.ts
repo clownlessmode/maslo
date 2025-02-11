@@ -1,18 +1,27 @@
 "use server"
 
+import { Order } from "@prisma/client"
 import { RussianPostData } from "./orders"
 import { sendTelegramMessage } from "./telegram"
 import axios from "axios"
 
 const AUTH_KEY = process.env.MAIL_RUSSIA_AUTHORIZATION
 const X_USER_KEY = process.env.MAIL_RUSSIA_X_USER_KEY
+function splitFullName(fullName: string) {
+  const nameParts = fullName.split(" ")
 
-export async function postOrder(data: RussianPostData) {
-  const json = JSON.stringify([data])
+  return {
+    surname: nameParts[0], // Фамилия
+    givenName: nameParts[1], // Имя
+    middleName: nameParts[2], // Отчество
+  }
+}
+export async function postOrder(order: Order) {
+  const { surname, givenName, middleName } = splitFullName(order.customerName)
 
   try {
     await sendTelegramMessage({
-      message: `🚀 Начинаем отправку заказа!\n📦 Данные: ${json}`,
+      message: `🚀 Начинаем отправку заказа!\n📦 Данные: ${order}`,
     })
 
     const headers = {
@@ -34,21 +43,21 @@ export async function postOrder(data: RussianPostData) {
         [
           {
             "address-type-to": "DEFAULT",
-            "given-name": "Коваленко",
-            "house-to": "123",
-            "index-to": 650066,
+            "given-name": givenName,
+            "house-to": order.house,
+            "index-to": order.index,
             "mail-category": "ORDINARY",
             "mail-direct": 643,
             "mail-type": "POSTAL_PARCEL",
             mass: 1540,
-            "middle-name": "",
-            "order-num": "ecli-1739206953494-jids",
-            "place-to": "272",
+            "middle-name": middleName,
+            "order-num": order.id,
+            "place-to": order.city,
             "postoffice-code": 140007,
-            "region-to": "Кемеровская область",
-            "street-to": "Волгоградская",
-            surname: "Родион",
-            "tel-address": "79609177131",
+            "region-to": order.oblast,
+            "street-to": order.street,
+            surname: surname,
+            "tel-address": order.customerPhone.replace(/\D/g, "").slice(-10),
             "transport-type": "SURFACE",
           },
         ],

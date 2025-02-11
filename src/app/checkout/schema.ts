@@ -26,6 +26,7 @@ const formSchema = z
     house: z.string().optional(),
     apartment: z.string().optional(),
     postalCode: z.string().optional(),
+    oblast: z.string().optional(),
   })
   .refine(
     (data) => {

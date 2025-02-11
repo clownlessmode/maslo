@@ -51,6 +51,17 @@ model Order {
     cdekOrderId        String? @unique
     cdekTrackingNumber String?
 
+    // Russia Post
+    oblast String
+    index String
+    street String
+    house String
+    apartment String
+    postalCode String
+    promocode String
+
+
+
     @@index([status])
     @@index([customerEmail])
 }
