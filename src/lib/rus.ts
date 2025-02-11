@@ -2,6 +2,7 @@
 
 import { RussianPostData } from "./orders"
 import { sendTelegramMessage } from "./telegram"
+import axios from "axios"
 
 const AUTH_KEY = process.env.MAIL_RUSSIA_AUTHORIZATION
 const X_USER_KEY = process.env.MAIL_RUSSIA_X_USER_KEY
@@ -40,9 +41,6 @@ export async function postOrder(data: RussianPostData) {
     const headers = {
       Authorization: `AccessToken ${AUTH_KEY}`,
       "X-User-Authorization": `Basic ${X_USER_KEY}`,
-      "Content-Type": "application/json",
-      Accept: "application/json;charset=UTF-8",
-      "Content-Length": json.length.toString(),
     }
 
     await sendTelegramMessage({
@@ -53,13 +51,11 @@ export async function postOrder(data: RussianPostData) {
       await sendTelegramMessage({ message: "Starting fetch..." })
 
       // Add more detailed error handling and timeout
-      const response = await fetchWithTimeout(
+      const response = await axios.put(
         "https://otpravka-api.pochta.ru/1.0/user/backlog",
+        json,
         {
-          method: "PUT",
           headers,
-          body: json,
-          timeout: 30000, // 30 second timeout
         }
       )
 
@@ -67,19 +63,13 @@ export async function postOrder(data: RussianPostData) {
         message: `Fetch completed, status: ${response.status}`,
       })
 
-      const responseText = await response.text()
-
-      // Log response headers for debugging
-      const responseHeaders = Object.fromEntries(response.headers.entries())
-      await sendTelegramMessage({
-        message: `Response headers: ${JSON.stringify(responseHeaders)}`,
-      })
+      const responseText = await response.data
 
       await sendTelegramMessage({
         message: `Response body: ${responseText}`,
       })
 
-      if (!response.ok) {
+      if (!response.status.toString().startsWith("2")) {
         throw new Error(
           `HTTP error! status: ${response.status}, response: ${responseText}`
         )
