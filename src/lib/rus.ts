@@ -35,7 +35,7 @@ export async function postOrder(data: RussianPostData) {
 
   try {
     await sendTelegramMessage({
-      message: `Starting request with JSON: ${json}`,
+      message: `🚀 Начинаем отправку заказа!\n📦 Данные: ${json}`,
     })
 
     const headers = {
@@ -44,69 +44,73 @@ export async function postOrder(data: RussianPostData) {
     }
 
     await sendTelegramMessage({
-      message: `Headers prepared: ${JSON.stringify(headers)}`,
+      message: `🛠 Заголовки подготовлены:\n🔑 ${JSON.stringify(headers)}`,
     })
 
     try {
-      await sendTelegramMessage({ message: "Starting fetch..." })
+      await sendTelegramMessage({
+        message: "⏳ Выполняем запрос к API Почты России...",
+      })
 
-      // Add more detailed error handling and timeout
       const response = await axios.put(
         "https://otpravka-api.pochta.ru/1.0/user/backlog",
         json,
-        {
-          headers,
-        }
+        { headers }
       )
 
       await sendTelegramMessage({
-        message: `Fetch completed, status: ${response.status}`,
+        message: `✅ Запрос выполнен!\n📡 Статус ответа: ${response.status}`,
       })
 
       const responseText = await response.data
 
       await sendTelegramMessage({
-        message: `Response body: ${responseText}`,
+        message: `📥 Ответ сервера:\n${JSON.stringify(responseText, null, 2)}`,
       })
 
       if (!response.status.toString().startsWith("2")) {
         throw new Error(
-          `HTTP error! status: ${response.status}, response: ${responseText}`
+          `🚨 Ошибка HTTP!\n❌ Статус: ${response.status}\n🔄 Ответ: ${responseText}`
         )
       }
 
       let result
       try {
-        result = JSON.parse(responseText)
+        result = JSON.parse(JSON.stringify(responseText))
       } catch (parseError) {
         await sendTelegramMessage({
-          message: `Failed to parse response as JSON: ${responseText}`,
+          message: `⚠️ Ошибка парсинга JSON:\n${responseText}`,
         })
         throw parseError
       }
 
       await sendTelegramMessage({
-        message: `Success result: ${JSON.stringify(result)}`,
+        message: `🎉 Успех! Полученный результат:\n${JSON.stringify(
+          result,
+          null,
+          2
+        )}`,
       })
+
       return result
     } catch (fetchError) {
       await sendTelegramMessage({
-        message: "Request timed out after 30 seconds",
+        message: "⏳ Тайм-аут: запрос выполнялся более 30 секунд! ❌",
       })
 
       await sendTelegramMessage({
-        message: `Fetch error: ${
+        message: `⚠️ Ошибка запроса: ${
           fetchError instanceof Error
             ? `${fetchError.name}: ${fetchError.message}`
-            : "Unknown fetch error"
+            : "Неизвестная ошибка запроса"
         }`,
       })
       throw fetchError
     }
   } catch (error) {
     await sendTelegramMessage({
-      message: `General error: ${
-        error instanceof Error ? error.message : "Unknown error"
+      message: `🔥 Общая ошибка:\n${
+        error instanceof Error ? error.message : "Неизвестная ошибка"
       }`,
     })
     throw error
