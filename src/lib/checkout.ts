@@ -21,13 +21,18 @@ const quantitySchema = z.number().min(1).max(5)
 
 export async function calculatePrice(
   quantity: number,
+  deliveryType: string,
   promocode: string | undefined
 ) {
   const promoDiscounts = new Map([["maslow10", 0.1]])
 
   try {
     const validatedQuantity = quantitySchema.parse(quantity)
-    const baseTotal = productDetails.basePrice * validatedQuantity
+    let shipment = 0
+    if (deliveryType !== "selfpickup") {
+      shipment = deliveryType === "pochta" ? 200 : 500
+    }
+    const baseTotal = productDetails.basePrice * validatedQuantity + shipment
 
     // Проверяем есть ли промокод и применяем скидку
     let finalTotal = baseTotal

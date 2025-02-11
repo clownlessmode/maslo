@@ -66,12 +66,14 @@ export default function Checkout({
       phone: string
       quantity: number
       promocode?: string
+      deliveryType: string
     }) => {
       const res = await client.payment.createTBankSession.$post({
         email: data.email,
         phone: data.phone,
         quantity: data.quantity,
         promocode: data.promocode,
+        deliveryType: data.deliveryType,
       })
       return (await res.json()) as {
         success: boolean
@@ -92,6 +94,7 @@ export default function Checkout({
           phone: data.phone,
           quantity: quantity,
           promocode: data.promocode,
+          deliveryType: data.shipment,
         })
 
         console.log("📦 Ответ от TBank:", tbankResponse)
@@ -339,6 +342,29 @@ export default function Checkout({
                                 бесплатно
                               </span>
                             </FormItem>
+                            {selectedShipment === "selfpickup" && (
+                              <p className="text-[18px] font-light leading-[120%] text-white/60">
+                                После оплаты заказа{" "}
+                                <b className="text-white">
+                                  с вами свяжется менеджер{" "}
+                                </b>
+                                магазина для уточнения деталей <br />
+                                Самовывоз осуществляется на станции метро
+                                <b className="text-white">
+                                  {" "}
+                                  «Охотный ряд» в центре Москвы
+                                </b>
+                                <br />
+                                Обращаем ваше{" "}
+                                <b className="text-white">внимание</b> на то,
+                                что{" "}
+                                <b className="text-white">
+                                  точка самовывоза — это не магазин
+                                </b>
+                                , а именно пункт где вы можете
+                                <b> лично забрать свой заказ</b>
+                              </p>
+                            )}
                           </RadioGroup>
                         </FormControl>
                       </FormItem>
@@ -359,7 +385,7 @@ export default function Checkout({
                             <Input
                               disabled
                               placeholder="Самовывоз"
-                              value={"Улица Пушкина, д.Колотушкина 13, кв.37"}
+                              value={'Станция метро "Охотный ряд"'}
                             />
                           ) : selectedShipment === "cdek" ? (
                             <AutoComplete

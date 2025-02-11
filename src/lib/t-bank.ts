@@ -8,6 +8,7 @@ const paymentDataSchema = z.object({
   Phone: z.string(),
   Quantity: z.number().min(1).max(5),
   promocode: z.string().optional(),
+  deliveryType: z.string(),
 })
 
 interface TBankResponse {
@@ -40,6 +41,7 @@ export async function createTBankSession(
     console.log("💰 Расчет стоимости заказа...")
     const priceResult = await calculatePrice(
       validatedData.Quantity,
+      validatedData.deliveryType,
       validatedData.promocode
     )
     if (!priceResult.success || !priceResult.total || !priceResult.quantity) {
