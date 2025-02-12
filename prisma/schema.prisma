@@ -59,7 +59,7 @@ model Order {
     apartment String
     postalCode String
     promocode String
-
+    
 
 
     @@index([status])

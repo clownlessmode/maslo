@@ -4,6 +4,7 @@ import { Order } from "@prisma/client"
 import { RussianPostData } from "./orders"
 import { sendTelegramMessage } from "./telegram"
 import axios from "axios"
+import { fetchCities } from "./cities"
 
 const AUTH_KEY = process.env.MAIL_RUSSIA_AUTHORIZATION
 const X_USER_KEY = process.env.MAIL_RUSSIA_X_USER_KEY
@@ -69,15 +70,16 @@ export async function postOrder(order: Order) {
         })
         throw parseError
       }
-
+      const cities = await fetchCities()
+      const city = cities.find((city) => city.code === Number(order.city))
       await sendTelegramMessage({
         message: `🎉 Новый заказ по почте России
 
         Для ${givenName} ${middleName} ${surname}
         Телефон ${order.customerPhone.replace(/\D/g, "").slice(-10)}
-        Адрес ${order.oblast} ${order.city} ${order.street} ${order.house} ${
-          order.index
-        }`,
+        Адрес ${order.oblast} ${city ? city : `Номер города ${order.city}`} ${
+          order.street
+        } ${order.house} ${order.index}`,
       })
 
       return result
