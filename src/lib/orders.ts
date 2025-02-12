@@ -258,7 +258,12 @@ class ShippingFactory {
   static async createShipment(order: Order) {
     switch (order.shipmentMethod) {
       case ShipmentMethod.SELFPICKUP:
-        await LoggerService.info("Заказ на самовывоз", { order })
+        await sendTelegramMessage({
+          message: `🎉 Новый заказ САМОВЫВОЗ 
+
+        Для ${order.customerName} 
+        Телефон ${order.customerPhone.replace(/\D/g, "").slice(-10)}`,
+        })
         return
 
       case ShipmentMethod.CDEK:
