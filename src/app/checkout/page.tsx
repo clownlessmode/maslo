@@ -37,6 +37,7 @@ export default function Checkout({
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [quantity, setQuantity] = useState(1)
+
   const [total, setTotal] = useState(13590)
   const [cities, setCities] = useState<City[]>([])
 
@@ -152,6 +153,8 @@ export default function Checkout({
   )
 
   const selectedShipment = form.watch("shipment")
+  const promo = form.watch("promocode")
+
   const selectedCity = form.watch("city")
 
   const { data: cdekOffices } = useQuery({
@@ -492,6 +495,8 @@ export default function Checkout({
                 </Button>
               </div>
               <RightSide
+                deliveryType={selectedShipment}
+                promocode={promo as string}
                 quantity={quantity}
                 setQuantity={setQuantity}
                 total={total}

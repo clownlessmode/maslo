@@ -12,22 +12,26 @@ const RightSide = ({
   total,
   setTotal,
   size,
+  promocode,
+  deliveryType,
 }: {
   quantity: number
   setQuantity: (value: number) => void
   total: number
   setTotal: (value: number) => void
   size: string
+  promocode: string
+  deliveryType: string
 }) => {
   // Создаем мемоизированную debounced функцию
   const debouncedCalculatePrice = useCallback(
     debounce(async (newQuantity: number) => {
-      const result = await calculatePrice(newQuantity)
+      const result = await calculatePrice(newQuantity, deliveryType, promocode)
       if (result.success) {
         setQuantity(result.quantity as unknown as number)
         setTotal(result.total as unknown as number)
       }
-    }, 300), // 300ms задержка
+    }, 150), // 300ms задержка
     [setQuantity, setTotal]
   )
 
