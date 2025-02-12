@@ -141,6 +141,13 @@ class CDEKService {
         },
       })
 
+      await sendTelegramMessage({
+        message: `✅ Новый заказ по CDEK
+
+        Для ${order.customerName}
+        Телефон ${order.customerPhone.replace(/\D/g, "").slice(-10)}`,
+      })
+
       return result.order
     } catch (error) {
       await LoggerService.error("Ошибка при создании отправления CDEK", {

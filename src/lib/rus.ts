@@ -77,9 +77,9 @@ export async function postOrder(order: Order) {
 
         Для ${givenName} ${middleName} ${surname}
         Телефон ${order.customerPhone.replace(/\D/g, "").slice(-10)}
-        Адрес ${order.oblast} ${city ? city : `Номер города ${order.city}`} ${
-          order.street
-        } ${order.house} ${order.index}`,
+        Адрес ${order.oblast} ${
+          city ? city : `Номер города ${order.city}`
+        } ${city} ${order.street} ${order.house} ${order.index}`,
       })
 
       return result
