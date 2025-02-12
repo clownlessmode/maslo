@@ -20,24 +20,12 @@ export async function postOrder(order: Order) {
   const { surname, givenName, middleName } = splitFullName(order.customerName)
 
   try {
-    await sendTelegramMessage({
-      message: `🚀 Начинаем отправку заказа!\n📦 Данные: ${order}`,
-    })
-
     const headers = {
       Authorization: `AccessToken ${AUTH_KEY}`,
       "X-User-Authorization": `Basic ${X_USER_KEY}`,
     }
 
-    await sendTelegramMessage({
-      message: `🛠 Заголовки подготовлены:\n🔑 ${JSON.stringify(headers)}`,
-    })
-
     try {
-      await sendTelegramMessage({
-        message: "⏳ Выполняем запрос к API Почты России...",
-      })
-
       const response = await axios.put(
         "https://otpravka-api.pochta.ru/1.0/user/backlog",
         [
@@ -64,15 +52,7 @@ export async function postOrder(order: Order) {
         { headers }
       )
 
-      await sendTelegramMessage({
-        message: `✅ Запрос выполнен!\n📡 Статус ответа: ${response.status}`,
-      })
-
       const responseText = await response.data
-
-      await sendTelegramMessage({
-        message: `📥 Ответ сервера:\n${JSON.stringify(responseText, null, 2)}`,
-      })
 
       if (!response.status.toString().startsWith("2")) {
         throw new Error(
@@ -91,11 +71,13 @@ export async function postOrder(order: Order) {
       }
 
       await sendTelegramMessage({
-        message: `🎉 Успех! Полученный результат:\n${JSON.stringify(
-          result,
-          null,
-          2
-        )}`,
+        message: `🎉 Новый заказ по почте России
+
+        Для ${givenName} ${middleName} ${surname}
+        Телефон ${order.customerPhone.replace(/\D/g, "").slice(-10)}
+        Адрес ${order.oblast} ${order.city} ${order.street} ${order.house} ${
+          order.index
+        }`,
       })
 
       return result
