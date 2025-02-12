@@ -87,18 +87,6 @@ class LoggerService {
 
 // Notification Service
 class NotificationService {
-  static async sendShipmentCreated(
-    orderId: string,
-    trackingNumber: string,
-    result: any
-  ) {
-    await LoggerService.info("Создано отправление!", {
-      orderId,
-      trackingNumber,
-      shippingDetails: result,
-    })
-  }
-
   static async sendShipmentError(orderId: string, error: any) {
     await LoggerService.error("Ошибка создания отправления!", {
       orderId,
@@ -118,11 +106,6 @@ class RussianPostService {
         data: { status: "SHIPPING" },
       })
 
-      await NotificationService.sendShipmentCreated(
-        order.id,
-        result.trackingNumber,
-        result
-      )
       return result
     } catch (error) {
       await LoggerService.error(
@@ -157,12 +140,6 @@ class CDEKService {
           status: "SHIPPING",
         },
       })
-
-      await NotificationService.sendShipmentCreated(
-        order.id,
-        result.order.order_id,
-        result
-      )
 
       return result.order
     } catch (error) {
@@ -212,18 +189,6 @@ class CDEKService {
 // Order Service
 class OrderService {
   static async create(formData: CreateOrderData): Promise<Order> {
-    await LoggerService.info("Начало создания заказа", {
-      orderId: formData.orderId,
-      formData: {
-        name: formData.name,
-        email: formData.email,
-        city: formData.city,
-        quantity: formData.quantity,
-        amount: formData.amount,
-        shipmentMethod: formData.shipment,
-      },
-    })
-
     try {
       const order = await db.order.create({
         data: {
