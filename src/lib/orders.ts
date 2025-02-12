@@ -87,22 +87,6 @@ class LoggerService {
 
 // Notification Service
 class NotificationService {
-  static async sendOrderCreated(order: Order, formData: CreateOrderData) {
-    await LoggerService.info("Новый заказ создан!", {
-      orderId: order.id,
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      city: formData.city,
-      quantity: formData.quantity,
-      amount: formData.amount / 100,
-    })
-  }
-
-  static async sendOrderNotFound(orderId: string) {
-    await LoggerService.error("Заказ не найден в базе данных!", { orderId })
-  }
-
   static async sendShipmentCreated(
     orderId: string,
     trackingNumber: string,
@@ -126,13 +110,8 @@ class NotificationService {
 // Russian Post Service
 class RussianPostService {
   static async createShipment(order: Order) {
-    await LoggerService.info("Создание отправления Почты России", {
-      orderId: order.id,
-    })
-
     try {
       const result = await postOrder(order)
-      await LoggerService.info("Ответ от API Почты России", result)
 
       await db.order.update({
         where: { id: order.id },
@@ -163,10 +142,8 @@ class CDEKService {
   static async createShipment(order: Order) {
     try {
       const cdekData = await this.prepareCdekData(order)
-      await LoggerService.debug("Подготовленные данные для CDEK", cdekData)
 
       const result = await registerCdekOrder(cdekData)
-      await LoggerService.info("Ответ от API CDEK", result)
 
       if (!result.success) {
         await NotificationService.sendShipmentError(order.id, result.error)
@@ -269,7 +246,6 @@ class OrderService {
         },
       })
 
-      await NotificationService.sendOrderCreated(order, formData)
       return order
     } catch (error) {
       await LoggerService.error("Ошибка при создании заказа", {
@@ -284,11 +260,6 @@ class OrderService {
     orderId: string,
     paymentId: string
   ): Promise<Order> {
-    await LoggerService.info("Обновление статуса оплаты", {
-      orderId,
-      paymentId,
-    })
-
     try {
       const order = await db.order.update({
         where: { id: orderId },
@@ -297,12 +268,6 @@ class OrderService {
           paymentId,
           updatedAt: new Date(),
         },
-      })
-
-      await LoggerService.info("Статус оплаты обновлен", {
-        orderId,
-        status: order.status,
-        paymentId: order.paymentId,
       })
 
       return order
@@ -338,13 +303,8 @@ class ShippingFactory {
 
 // Main handlers
 export async function createOrder(formData: CreateOrderData) {
-  await LoggerService.info("Вход в обработчик createOrder", {
-    orderId: formData.orderId,
-  })
-
   try {
     const order = await OrderService.create(formData)
-    await LoggerService.info("Заказ успешно создан", { orderId: order.id })
     return order
   } catch (error) {
     await LoggerService.error("Ошибка в обработчике createOrder", {
@@ -356,15 +316,10 @@ export async function createOrder(formData: CreateOrderData) {
 }
 
 export async function handlePaymentNotification(data: unknown) {
-  await LoggerService.info("Получено платежное уведомление", { data })
-
   try {
     const notification = orderNotificationSchema.parse(data)
 
     if (notification.Status !== "CONFIRMED") {
-      await LoggerService.info("Пропуск обработки: статус не CONFIRMED", {
-        status: notification.Status,
-      })
       return
     }
 
@@ -373,7 +328,6 @@ export async function handlePaymentNotification(data: unknown) {
     })
 
     if (!existingOrder) {
-      await NotificationService.sendOrderNotFound(notification.OrderId)
       return
     }
 
@@ -384,10 +338,6 @@ export async function handlePaymentNotification(data: unknown) {
 
     return await ShippingFactory.createShipment(updatedOrder)
   } catch (error) {
-    await LoggerService.error("Ошибка в обработчике платежного уведомления", {
-      error,
-      data,
-    })
     throw error
   }
 }

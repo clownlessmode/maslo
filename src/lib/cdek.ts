@@ -163,16 +163,6 @@ export async function registerCdekOrder(
     })
 
     //
-    //if (!response.ok) {
-    //  const errorData = await response.json()
-    //  console.error("CDEK API error:", {
-    //    status: response.status,
-    //    error: errorData,
-    //    timestamp: new Date().toISOString(),
-    //  })
-    //  return { success: false, error: "Failed to register order with CDEK" }
-    //}
-    //
     const responseData = (await response.json()) as CdekResponse
 
     return { success: true, order: responseData }

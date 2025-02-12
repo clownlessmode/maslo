@@ -102,18 +102,9 @@ export async function createTBankSession(
 
     if (!responseData.Success) {
       console.error("❌ Ошибка платежного шлюза:", responseData.ErrorCode)
-      await sendTelegramMessage({
-        message: `⚠️ Ошибка создания платежа!\n\nEmail: ${data.Email}\nОшибка: ${responseData.ErrorCode}`,
-      })
+
       return { success: false as const, error: "Payment initialization failed" }
     }
-
-    console.log("✅ Платежная сессия создана успешно")
-    await sendTelegramMessage({
-      message: `💳 Создана платежная сессия!\n\nEmail: ${data.Email}\nСумма: ${
-        amount / 100
-      } руб.`,
-    })
 
     return {
       success: true as const,

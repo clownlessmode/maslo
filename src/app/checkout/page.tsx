@@ -123,16 +123,6 @@ export default function Checkout({
         }
       } catch (error) {
         console.error("❌ Ошибка при создании заказа:", error)
-        await sendTelegramMessage({
-          message: `
-  ⚠️ Ошибка создания заказа
-
-  ❌ Ошибка: ${error instanceof Error ? error.message : "Неизвестная ошибка"}
-  📧 Email: ${data.email}
-  💰 Сумма: ${total} руб.
-  ⏱ Время: ${new Date().toLocaleString("ru-RU")}
-            `.trim(),
-        })
       }
     })
   }

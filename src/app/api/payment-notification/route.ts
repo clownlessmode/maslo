@@ -79,16 +79,6 @@ export async function POST(request: Request) {
         receivedData: data,
       })
 
-      await sendTelegramMessage({
-        message: `
-⚠️ Ошибка валидации платежного уведомления
-
-❌ Ошибка: ${JSON.stringify(validatedData.error.errors)}
-📦 Полученные данные: ${JSON.stringify(data)}
-⏱ Время: ${new Date().toLocaleString("ru-RU")}
-        `.trim(),
-      })
-
       return new NextResponse("Invalid notification data", { status: 400 })
     }
 
@@ -112,8 +102,6 @@ ${
 ⏱ Время: ${new Date().toLocaleString("ru-RU")}
     `.trim()
 
-    await sendTelegramMessage({ message })
-
     // Обрабатываем подтверждённые платежи
     if (Status === "CONFIRMED") {
       console.log("✅ Обработка подтверждённого платежа:", OrderId)
@@ -126,15 +114,6 @@ ${
     return new NextResponse("OK", { status: 200 })
   } catch (error) {
     console.error("❌ Ошибка обработки уведомления:", error)
-
-    await sendTelegramMessage({
-      message: `
-⚠️ Ошибка обработки платежа
-
-❌ Ошибка: ${error instanceof Error ? error.message : "Неизвестная ошибка"}
-⏱ Время: ${new Date().toLocaleString("ru-RU")}
-      `.trim(),
-    })
 
     return new NextResponse("Error processing notification", { status: 500 })
   }
