@@ -74,7 +74,7 @@ export async function calculatePrice(
 }
 
 // Вспомогательная функция для проверки оставшихся использований промокода
-export function getRemainingPromoUses(promocode: string): number {
+export async function getRemainingPromoUses(promocode: string) {
   if (!promoDiscounts.has(promocode)) return 0
   const used = promoUsageCount.get(promocode) || 0
   return Math.max(0, MAX_PROMO_USES - used)
