@@ -34,7 +34,7 @@ export async function calculatePrice(
     const validatedQuantity = quantitySchema.parse(quantity)
     let shipment = 0
     if (deliveryType !== "selfpickup") {
-      shipment = deliveryType === "pochta" ? 200 : 500
+      shipment = deliveryType === "pochta" ? 0 : 0
     }
     const baseTotal = productDetails.basePrice * validatedQuantity + shipment
 

@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s | MATTHEW MASLOV",
   },
   metadataBase: new URL("https://matthewmaslov.com"),
-  description: "Мы делаем историю, всё только начинается 🧈",
+  description: "MATTHEW MASLOV — РОССИЙСКИЙ ПРЕМИАЛЬНЫЙ БРЕНД ОДЕЖДЫ 🧈",
   keywords: [
     "matthewmaslov",
     "matthew maslov",
