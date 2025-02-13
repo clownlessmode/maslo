@@ -74,7 +74,32 @@ export const metadata: Metadata = {
       },
     ],
   },
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  manifest: "/manifest.json",
+  icons: {
+    // Иконка для браузера
+    icon: [{ rel: "icon", url: "/favicon.ico" }],
+    // Иконки для iOS
+    apple: [
+      { url: "/apple-icon.png" },
+      { url: "/apple-icon-180x180.png", sizes: "180x180", type: "image/png" },
+    ],
+    // Иконки для Android
+    other: [
+      {
+        rel: "android-chrome-192x192",
+        url: "/android-chrome-192x192.png",
+      },
+      {
+        rel: "android-chrome-512x512",
+        url: "/android-chrome-512x512.png",
+      },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "MATTHEW MASLOV",
+  },
 }
 
 export default function RootLayout({
