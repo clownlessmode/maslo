@@ -3,10 +3,12 @@ const menu = () => ({
     {
       title: "Home",
       link: "/",
+      disabled:false
     },
     {
       title: "Lookbook",
       link: "/lookbook",
+      disabled: true,
     },
   ],
   secondarySection: [

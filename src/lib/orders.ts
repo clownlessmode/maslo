@@ -25,7 +25,7 @@ import { z } from "zod"
 import { db } from "@/db"
 import { calculateDeliveryPrice, registerCdekOrder } from "@/lib/cdek"
 import { sendTelegramMessage } from "@/lib/telegram"
-import formSchema from "@/app/checkout/schema"
+import formSchema from "@/app/_checkout/schema"
 import { postOrder } from "./rus"
 
 // Types and Schemas

@@ -35,9 +35,12 @@ const Navbar = () => {
         <div className="sm:inline-flex hidden items-center gap-x-[60px]">
           {getMenu.primarySection.map((i) => (
             <Link
-              className="text-[#DDDDDD] hover:text-white transition-colors duration-200 uppercase text-lg"
+              className={cn(
+                "text-[#DDDDDD] hover:text-white transition-colors duration-200 uppercase text-lg",
+                i.disabled && "opacity-70 cursor-not-allowed"
+              )}
               key={i.title}
-              href={i.link}
+              href={i.disabled ? "/" : i.link}
             >
               {i.title}
             </Link>
