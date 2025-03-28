@@ -85,7 +85,7 @@ function ThanksPage() {
       )}
     >
       <InGame />
-      <div className="flex flex-col lg:justify-between lg:flex-row  mt-[18px] w-full">
+      <div className="flex flex-col lg:justify-between lg:flex-row  mt-[18px] lg:mt-[5%] w-full">
         <p className="leading-[1.2] px-[20px] lg:max-w-[45%] lg:text-left full text-center text-[16px] md:text-[20px] xl:text-[24px] 2xl:text-[32px] uppercase font-semibold text-white">
           Теперь именно у тебя есть доступ к дропу раньше всех. Не упусти
           возможность забрать вещи на лучших условиях
