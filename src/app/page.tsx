@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { useRouter } from "next/navigation"
+import axios from 'axios'
 
 function HomePage() {
   const [fixedHeight, setFixedHeight] = useState(0)
@@ -37,17 +38,19 @@ function HomePage() {
   }) => {
     setIsSubmitting(true)
     try {
-      // Здесь ваша логика отправки данных на сервер
+
+      const url = "https://script.google.com/macros/s/AKfycbyu-O8Q006pFj3phHl6FBWTb6I3fppu0liIh3wuObMV5xLBeyjQXj0SnllWaPYkfnU/exec" //url скрипта для отправких данных в Google sheet(Желательно перенести в .env или другой файл, что б не валялось тут)
+
+      //Отправка данных
+      axios.post(
+        url,
+        data,
+        {
+          headers: {"Content-Type": "application/x-www-form-urlencoded"}
+        } 
+      )
+
       console.log("Form data:", data)
-      //       sendTelegramMessage({
-      //         message: `
-      // Новый предзаказ
-      // Имя  ${data.name}
-      // Почта  ${data.email}
-      // Телеграм  ${data.telegram}
-      //         `,
-      //       })
-      // Имитация отправкиxs
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       setIsSuccess(true)
